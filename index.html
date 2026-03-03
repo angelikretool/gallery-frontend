@@ -1661,7 +1661,7 @@
                             </div>
                             <a href="${comp.repoLink}" class="github-link" onclick="event.stopPropagation(); window.open(this.href, '_blank'); return false;" target="_blank">
                                 ${githubIcon}
-                                View Repo
+                                Download Component
                             </a>
                         </div>
                         <p class="card-description">${comp.shortDescription}</p>
@@ -1692,7 +1692,7 @@
             const isForum = url && url.includes('community.retool.com');
             return {
                 icon:  isForum ? _retoolIcon : _githubIcon,
-                label: isForum ? 'View on Forum' : 'View on GitHub'
+                label: 'Download Component'
             };
         }
 
@@ -1821,7 +1821,7 @@
                         </div>
                         <div class="prereq-banner-body">
                             Your component must be added to our <a href="https://github.com/laboyangelik/retool-custom-component-gallery" target="_blank">community GitHub repository</a> with an open pull request before submitting this form. This is a hard requirement — submissions without a valid PR link will not be accepted.<br><br>
-                            Haven't opened your PR yet? <a href="https://github.com/laboyangelik/retool-custom-component-gallery" target="_blank">Head over to the repo</a>, copy the component template, and come back once your pull request is open.
+                            Haven't opened your PR yet? Copy the component template, and come back once your pull request is open.
                         </div>
                     </div>
                     <form id="submitForm" novalidate>
