@@ -771,6 +771,36 @@
         }
 
         /* ===== Feedback Banner (shown in edit mode when reviewer left notes) ===== */
+        .prereq-banner {
+            background: rgba(45, 212, 191, 0.07);
+            border: 1.5px solid #2DD4BF;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 28px;
+        }
+        .prereq-banner-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            color: #2DD4BF;
+            font-size: 0.92em;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+        }
+        .prereq-banner-body {
+            color: #CBD5E1;
+            font-size: 0.93em;
+            line-height: 1.7;
+        }
+        .prereq-banner-body a {
+            color: #2DD4BF;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .prereq-banner-body a:hover { color: #F5A623; }
         .feedback-banner {
             background: rgba(245, 166, 35, 0.08);
             border: 1.5px solid #F5A623;
@@ -1784,6 +1814,16 @@
 
                 <!-- Form -->
                 <div class="submit-modal-body" id="submitFormBody">
+                    <div class="prereq-banner">
+                        <div class="prereq-banner-title">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                            Before you submit
+                        </div>
+                        <div class="prereq-banner-body">
+                            Your component must be added to our <a href="https://github.com/laboyangelik/retool-custom-component-gallery" target="_blank">community GitHub repository</a> with an open pull request before submitting this form. This is a hard requirement — submissions without a valid PR link will not be accepted.<br><br>
+                            Haven't opened your PR yet? <a href="https://github.com/laboyangelik/retool-custom-component-gallery" target="_blank">Head over to the repo</a>, copy the component template, and come back once your pull request is open.
+                        </div>
+                    </div>
                     <form id="submitForm" novalidate>
                         <div class="form-row">
                             <div class="form-group">
