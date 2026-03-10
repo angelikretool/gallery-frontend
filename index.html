@@ -771,6 +771,32 @@
         }
 
         /* ===== Feedback Banner (shown in edit mode when reviewer left notes) ===== */
+        .edit-notification-banner {
+            display: none;
+            background: rgba(155, 114, 207, 0.1);
+            border: 1px solid rgba(155,114,207,0.4);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+        .edit-notification-banner:hover { background: rgba(155, 114, 207, 0.16); }
+        .edit-notification-banner.visible { display: flex; align-items: center; gap: 14px; }
+        .edit-notification-icon { color: #9B72CF; flex-shrink: 0; }
+        .edit-notification-text { flex: 1; }
+        .edit-notification-text strong { color: #FFFFFF; font-size: 0.95em; display: block; margin-bottom: 3px; }
+        .edit-notification-text span { color: #9CA3AF; font-size: 0.88em; }
+        .edit-notification-cta {
+            background: #9B72CF;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.88em;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
         .prereq-banner {
             background: rgba(156, 191, 231, 0.07);
             border: 1px solid rgba(156,191,231,0.3);
@@ -1814,6 +1840,14 @@
 
                 <!-- Form -->
                 <div class="submit-modal-body" id="submitFormBody">
+                    ${editMode && editData?.feedback ? `
+                    <div class="feedback-banner">
+                        <div class="feedback-banner-title">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                            Reviewer Feedback
+                        </div>
+                        <div class="feedback-banner-body">${esc(editData.feedback)}</div>
+                    </div>` : `
                     <div class="prereq-banner">
                         <div class="prereq-banner-title">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
@@ -1823,7 +1857,7 @@
                             Your component must be added to our <a href="https://github.com/laboyangelik/retool-custom-component-gallery" target="_blank">community GitHub repository</a> with an open pull request before submitting this form. This is a hard requirement — submissions without a valid PR link will not be accepted.<br><br>
                             Haven't opened your PR yet? Start with the <a href="https://github.com/tryretool/custom-component-collection-template" target="_blank">component template</a>, and come back once your pull request is open.
                         </div>
-                    </div>
+                    </div>`}
                     <form id="submitForm" novalidate>
                         <div class="form-row">
                             <div class="form-group">
@@ -2483,17 +2517,18 @@
                 editData  = submission;
                 editMode  = false;
 
-                // Attach reviewer feedback if present in the URL (?feedback=...)
-                const feedbackParam = new URLSearchParams(window.location.search).get('feedback');
-                if (feedbackParam) editData.feedback = feedbackParam;
+                // Attach reviewer feedback from DB row if present
+                if (!editData.feedback) {
+                    const feedbackParam = new URLSearchParams(window.location.search).get('feedback');
+                    if (feedbackParam) editData.feedback = feedbackParam;
+                }
 
-                const btn = document.getElementById('edit-component-btn');
-                btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Edit: ${esc(editData.project_name)}`;
-                btn.style.display = 'flex';
-                console.log('[EditMode] Button shown for:', editData.project_name);
-
-                // Auto-open the form immediately when arriving via email link
-                openEditModal();
+                // Show the notification banner instead of auto-opening
+                const banner = document.getElementById('editNotificationBanner');
+                document.getElementById('editNotificationTitle').textContent =
+                    `Your component needs changes — ${editData.project_name}`;
+                banner.classList.add('visible');
+                console.log('[EditMode] Notification shown for:', editData.project_name);
             } catch (e) {
                 console.error('[EditMode] Error:', e);
             }
@@ -2531,21 +2566,6 @@
             // Update modal labels for edit mode
             document.getElementById('submitModalTitle').textContent = 'Edit Your Component';
             document.querySelector('#footerFormBtns .modal-btn.primary').textContent = 'Preview Changes \u2192';
-
-            // Inject reviewer feedback banner at the top of the form if present
-            if (editData.feedback) {
-                const banner = document.createElement('div');
-                banner.className = 'feedback-banner';
-                banner.innerHTML = `
-                    <div class="feedback-banner-title">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                        Reviewer Feedback
-                    </div>
-                    <div class="feedback-banner-body">${esc(editData.feedback)}</div>
-                `;
-                const formBody = document.getElementById('submitFormBody');
-                formBody.insertBefore(banner, formBody.firstChild);
-            }
 
             document.getElementById('submitOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -2615,6 +2635,16 @@
 </head>
 <body>
     <div class="container">
+        <div id="editNotificationBanner" class="edit-notification-banner" onclick="openEditModal()">
+            <div class="edit-notification-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <div class="edit-notification-text">
+                <strong id="editNotificationTitle">Your component needs changes</strong>
+                <span>Our team left feedback on your submission. Click to review and resubmit.</span>
+            </div>
+            <button class="edit-notification-cta">Review Feedback</button>
+        </div>
         <div class="header">
             <div class="header-nav">
                 <div class="header-nav-left">
