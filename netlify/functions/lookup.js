@@ -24,6 +24,16 @@ exports.handler = async (event) => {
         return { statusCode: 500, body: JSON.stringify({ error: 'Trigger failed', detail: triggerJson }) };
     }
 
+    // Workflow may return data synchronously in the trigger response
+    const directSubmission = triggerJson?.return?.data ?? triggerJson?.return ?? triggerJson?.data;
+    if (directSubmission?.project_name) {
+        return {
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ submission: directSubmission })
+        };
+    }
+
     const runId = triggerJson.workflow_run?.id;
     if (!runId) {
         return { statusCode: 500, body: JSON.stringify({ error: 'No run ID', detail: triggerJson }) };
