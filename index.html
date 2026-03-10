@@ -945,9 +945,28 @@
             color: #9B72CF;
             font-weight: 700;
         }
-        .feedback-notif-card-body .fb-plain {
+        .feedback-notif-card-body .fb-plain,
+        .feedback-notif-card-body .fb-text,
+        .feedback-banner-body .fb-text {
             color: #CBD5E1;
-            white-space: pre-wrap;
+            font-size: 0.93em;
+            line-height: 1.65;
+        }
+        .feedback-notif-card-body .fb-intro,
+        .feedback-banner-body .fb-intro {
+            color: #94A3B8;
+            font-size: 0.9em;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .feedback-banner-body .fb-section { margin-bottom: 14px; }
+        .feedback-banner-body .fb-heading {
+            font-weight: 800;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9B72CF;
+            margin-bottom: 4px;
         }
         .feedback-notif-card-actions {
             display: flex;
@@ -2543,42 +2562,37 @@
         // ===== Feedback Notification Popup =====
 
         function renderFeedback(text) {
-            // Parse agent feedback into headed sections + bullet lists
-            const lines = (text || '').split('\n');
-            let html = '';
-            let currentBullets = [];
-            let currentHeading = null;
+            if (!text) return '';
 
-            function flushSection() {
-                if (!currentHeading && currentBullets.length === 0) return;
-                html += '<div class="fb-section">';
-                if (currentHeading) html += `<div class="fb-heading">${esc(currentHeading)}</div>`;
-                if (currentBullets.length) {
-                    html += '<ul class="fb-bullets">';
-                    currentBullets.forEach(b => { html += `<li>${esc(b)}</li>`; });
-                    html += '</ul>';
-                }
-                html += '</div>';
-                currentHeading = null;
-                currentBullets = [];
+            // Split on numbered items: "1. ", "2. " etc. — agent writes feedback this way
+            const parts = text.split(/(?=\b\d+\.\s)/);
+            const intro  = parts[0].trim();
+            const items  = parts.slice(1);
+
+            if (items.length === 0) {
+                // No numbered items — just show as formatted plain text
+                return `<p class="fb-intro">${esc(text)}</p>`;
             }
 
-            lines.forEach(line => {
-                const trimmed = line.trim();
-                if (!trimmed) { flushSection(); return; }
-                // "Field Name:" lines become section headings
-                if (/^[A-Za-z][^:]{1,40}:$/.test(trimmed)) {
-                    flushSection();
-                    currentHeading = trimmed.replace(/:$/, '');
-                // "- bullet" lines
-                } else if (/^[-•*]/.test(trimmed)) {
-                    currentBullets.push(trimmed.replace(/^[-•*]\s*/, ''));
+            let html = intro ? `<p class="fb-intro">${esc(intro)}</p>` : '';
+
+            items.forEach(item => {
+                // Strip leading "N. "
+                const body = item.replace(/^\d+\.\s*/, '').trim();
+                // "Field Name: description text"
+                const colonIdx = body.indexOf(':');
+                if (colonIdx > 0 && colonIdx < 50) {
+                    const heading = body.substring(0, colonIdx).trim();
+                    const detail  = body.substring(colonIdx + 1).trim();
+                    html += `<div class="fb-section">
+                        <div class="fb-heading">${esc(heading)}</div>
+                        <div class="fb-text">${esc(detail)}</div>
+                    </div>`;
                 } else {
-                    flushSection();
-                    html += `<div class="fb-plain">${esc(trimmed)}</div>`;
+                    html += `<div class="fb-section"><div class="fb-text">${esc(body)}</div></div>`;
                 }
             });
-            flushSection();
+
             return html;
         }
 
@@ -2720,7 +2734,7 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                         Reviewer Feedback
                     </div>
-                    <div class="feedback-banner-body">${esc(editData.feedback)}</div>
+                    <div class="feedback-banner-body">${renderFeedback(editData.feedback)}</div>
                 `;
                 const formBody = document.getElementById('submitFormBody');
                 formBody.insertBefore(banner, formBody.firstChild);
