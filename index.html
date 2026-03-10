@@ -1962,7 +1962,7 @@
 
                 <!-- Form -->
                 <div class="submit-modal-body" id="submitFormBody">
-                    <div class="prereq-banner">
+                    ${editToken ? '' : `<div class="prereq-banner">
                         <div class="prereq-banner-title">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                             Before you submit
@@ -1971,7 +1971,7 @@
                             Your component must be added to our <a href="https://github.com/laboyangelik/retool-custom-component-gallery" target="_blank">community GitHub repository</a> with an open pull request before submitting this form. This is a hard requirement — submissions without a valid PR link will not be accepted.<br><br>
                             Haven't opened your PR yet? Copy the component template, and come back once your pull request is open.
                         </div>
-                    </div>
+                    </div>`}
                     <form id="submitForm" novalidate>
                         <div class="form-row">
                             <div class="form-group">
