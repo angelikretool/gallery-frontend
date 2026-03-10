@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retool Custom Component Gallery</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,8 +13,8 @@
         }
 
         body {
-            font-family: 'Nunito', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #3B7FF5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #151515;
             min-height: 100vh;
             padding: 32px 24px;
             color: #E5E7EB;
@@ -23,10 +23,10 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            background: #0E0E14;
+            background: #151515;
             border-radius: 24px;
             padding: 40px;
-            border: 3px solid #2DD4BF;
+            border: 1px solid rgba(156,191,231,0.25);
         }
 
         .header {
@@ -54,9 +54,9 @@
             font-size: 3.2em;
             margin-bottom: 10px;
             font-weight: 900;
-            color: #F5A623;
+            color: #9B72CF;
             letter-spacing: -0.01em;
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Inter', sans-serif;
             text-shadow: 0 2px 0 rgba(0,0,0,0.35);
         }
 
@@ -79,10 +79,10 @@
         .search-box input {
             width: 100%;
             padding: 10px 16px;
-            border: 1px solid #2DD4BF;
+            border: 1px solid #9CBFE7;
             border-radius: 10px;
             font-size: 0.9em;
-            background: #1A1A22;
+            background: #1E1E1E;
             color: #FFFFFF;
             font-family: inherit;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -90,8 +90,8 @@
 
         .search-box input:focus {
             outline: none;
-            border-color: #F5A623;
-            box-shadow: 0 0 0 3px rgba(245,166,35,0.2);
+            border-color: #9B72CF;
+            box-shadow: 0 0 0 3px rgba(155,114,207,0.2);
         }
 
         .search-box input::placeholder {
@@ -103,7 +103,7 @@
             padding: 0 0 24px 0;
             margin-bottom: 24px;
             border: none;
-            border-bottom: 1px solid rgba(45,212,191,0.3);
+            border-bottom: 1px solid rgba(156,191,231,0.15);
         }
 
         .tag-filter {
@@ -114,7 +114,7 @@
 
         .tag-button {
             padding: 8px 18px;
-            border: 1.5px solid rgba(45,212,191,0.45);
+            border: 1.5px solid rgba(156,191,231,0.45);
             background: transparent;
             color: #94A3B8;
             border-radius: 20px;
@@ -126,16 +126,16 @@
         }
 
         .tag-button:hover {
-            background: rgba(45,212,191,0.12);
-            color: #2DD4BF;
-            border-color: #2DD4BF;
+            background: rgba(156,191,231,0.12);
+            color: #9CBFE7;
+            border-color: #9CBFE7;
         }
 
         .tag-button.active {
-            background: #F5A623;
-            color: #0E0E14;
-            border-color: #F5A623;
-            box-shadow: 0 2px 8px rgba(245,166,35,0.35);
+            background: #9B72CF;
+            color: #151515;
+            border-color: #9B72CF;
+            box-shadow: 0 2px 8px rgba(155,114,207,0.35);
         }
 
         .gallery {
@@ -145,10 +145,10 @@
         }
 
         .component-card {
-            background: #1A1A22;
+            background: #1E1E1E;
             border-radius: 14px;
             overflow: hidden;
-            border: 2px solid #2DD4BF;
+            border: 1px solid rgba(156,191,231,0.2);
             transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             flex-direction: column;
@@ -156,20 +156,20 @@
 
         .component-card:hover {
             transform: translateY(-5px);
-            border-color: #F5A623;
-            box-shadow: 0 8px 32px rgba(245,166,35,0.2);
+            border-color: #9B72CF;
+            box-shadow: 0 8px 32px rgba(155,114,207,0.2);
         }
 
         .card-media {
             width: 100%;
             height: 240px;
-            background: #0E0E14;
+            background: #151515;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             position: relative;
-            border-bottom: 2px solid #2DD4BF;
+            border-bottom: 1px solid rgba(156,191,231,0.15);
         }
 
         .card-media img {
@@ -218,15 +218,15 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #F5A623;
+            background: #9B72CF;
             display: inline-block;
             flex-shrink: 0;
         }
 
         .github-link {
             padding: 7px 13px;
-            background: rgba(45,212,191,0.1);
-            color: #2DD4BF;
+            background: rgba(156,191,231,0.1);
+            color: #9CBFE7;
             text-decoration: none;
             border-radius: 8px;
             font-size: 0.85em;
@@ -236,15 +236,15 @@
             gap: 6px;
             transition: background 0.2s ease, color 0.2s ease;
             white-space: nowrap;
-            border: 1px solid rgba(45,212,191,0.4);
+            border: 1px solid rgba(156,191,231,0.4);
             flex-shrink: 0;
             align-self: flex-start;
         }
 
         .github-link:hover {
-            background: rgba(45,212,191,0.2);
+            background: rgba(156,191,231,0.2);
             color: #FFFFFF;
-            border-color: #2DD4BF;
+            border-color: #9CBFE7;
         }
 
         .card-description {
@@ -264,12 +264,12 @@
 
         .tag {
             padding: 5px 11px;
-            background: rgba(45,212,191,0.1);
-            color: #2DD4BF;
+            background: rgba(156,191,231,0.1);
+            color: #9CBFE7;
             border-radius: 20px;
             font-size: 0.82em;
             font-weight: 700;
-            border: 1px solid rgba(45,212,191,0.35);
+            border: 1px solid rgba(156,191,231,0.35);
         }
 
         @media (max-width: 768px) {
@@ -306,31 +306,31 @@
             align-items: center;
             gap: 3px;
             padding: 2px 9px;
-            background: rgba(45,212,191,0.12);
-            border: 1px solid rgba(45,212,191,0.5);
+            background: rgba(156,191,231,0.12);
+            border: 1px solid rgba(156,191,231,0.5);
             border-radius: 10px;
             font-size: 0.72em;
             font-weight: 800;
-            color: #2DD4BF;
+            color: #9CBFE7;
             letter-spacing: 0.03em;
             white-space: nowrap;
         }
 
         .tag-button.champion-filter {
-            border-color: rgba(245, 158, 11, 0.45);
-            color: #F59E0B;
+            border-color: rgba(155, 114, 207, 0.45);
+            color: #9B72CF;
         }
 
         .tag-button.champion-filter:hover {
-            background: rgba(245, 158, 11, 0.12);
-            color: #F59E0B;
-            border-color: #F59E0B;
+            background: rgba(155, 114, 207, 0.12);
+            color: #9B72CF;
+            border-color: #9B72CF;
         }
 
         .tag-button.champion-filter.active {
-            background: #F59E0B;
-            color: #1A1D1F;
-            border-color: #F59E0B;
+            background: #9B72CF;
+            color: #1E1E1E;
+            border-color: #9B72CF;
         }
 
         /* ===== Voting Styles ===== */
@@ -351,7 +351,7 @@
             letter-spacing: 0.02em;
         }
 
-        .rank-badge.gold   { border-color: #F59E0B; color: #F59E0B; }
+        .rank-badge.gold   { border-color: #9B72CF; color: #9B72CF; }
         .rank-badge.silver { border-color: #9CA3AF; color: #C0C0C0; }
         .rank-badge.bronze { border-color: #B87333; color: #CD853F; }
 
@@ -376,29 +376,29 @@
         }
 
         .star-btn:hover:not(:disabled) {
-            border-color: #F59E0B;
-            background: rgba(245, 158, 11, 0.15);
+            border-color: #9B72CF;
+            background: rgba(155, 114, 207, 0.15);
         }
 
         .star-btn:hover:not(:disabled) .star-icon {
-            color: #F59E0B;
+            color: #9B72CF;
         }
 
         .star-btn:hover:not(:disabled) .star-count {
-            color: #F59E0B;
+            color: #9B72CF;
         }
 
         .star-btn.voted {
-            border-color: #F59E0B;
-            background: rgba(245, 158, 11, 0.15);
+            border-color: #9B72CF;
+            background: rgba(155, 114, 207, 0.15);
         }
 
         .star-btn.voted .star-icon {
-            color: #F59E0B;
+            color: #9B72CF;
         }
 
         .star-btn.voted .star-count {
-            color: #F59E0B;
+            color: #9B72CF;
         }
 
         .star-btn:disabled {
@@ -431,9 +431,9 @@
             bottom: 32px;
             left: 50%;
             transform: translateX(-50%) translateY(80px);
-            background: #141418;
-            border: 2px solid #2DD4BF;
-            color: #2DD4BF;
+            background: #111111;
+            border: 2px solid #9CBFE7;
+            color: #9CBFE7;
             padding: 12px 24px;
             border-radius: 10px;
             font-size: 0.925em;
@@ -485,13 +485,13 @@
         }
 
         .modal-content {
-            background: #141418;
+            background: #111111;
             border-radius: 20px;
             max-width: 1000px;
             width: 100%;
             max-height: 90vh;
             overflow: hidden;
-            border: 2px solid #2DD4BF;
+            border: 1px solid rgba(156,191,231,0.25);
             animation: slideUp 0.3s ease;
             position: relative;
         }
@@ -500,7 +500,7 @@
             overflow-y: auto;
             max-height: 90vh;
             scrollbar-width: thin;
-            scrollbar-color: #2DD4BF transparent;
+            scrollbar-color: #9CBFE7 transparent;
         }
 
         .modal-scroll-inner::-webkit-scrollbar {
@@ -513,12 +513,12 @@
         }
 
         .modal-scroll-inner::-webkit-scrollbar-thumb {
-            background: #2DD4BF;
+            background: #9CBFE7;
             border-radius: 10px;
         }
 
         .modal-scroll-inner::-webkit-scrollbar-thumb:hover {
-            background: #F5A623;
+            background: #9B72CF;
         }
 
         @keyframes slideUp {
@@ -529,8 +529,8 @@
         .modal-header {
             position: sticky;
             top: 0;
-            background: #141418;
-            border-bottom: 2px solid #2DD4BF;
+            background: #111111;
+            border-bottom: 1px solid rgba(156,191,231,0.2);
             padding: 24px 32px;
             display: flex;
             justify-content: space-between;
@@ -587,7 +587,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #F5A623;
+            background: #9B72CF;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -608,7 +608,7 @@
         .modal-preview {
             width: 100%;
             height: 400px;
-            background: #1A1D1F;
+            background: #1E1E1E;
             border-radius: 12px;
             overflow: hidden;
             margin-bottom: 32px;
@@ -647,22 +647,22 @@
 
         .modal-tag {
             padding: 6px 14px;
-            background: rgba(45,212,191,0.1);
-            color: #2DD4BF;
+            background: rgba(156,191,231,0.1);
+            color: #9CBFE7;
             border-radius: 20px;
             font-size: 0.88em;
             font-weight: 700;
-            border: 1px solid rgba(45,212,191,0.35);
+            border: 1px solid rgba(156,191,231,0.35);
         }
 
         .modal-actions {
             display: flex;
             gap: 12px;
             padding: 24px 32px;
-            border-top: 2px solid #2DD4BF;
+            border-top: 1px solid rgba(156,191,231,0.2);
             position: sticky;
             bottom: 0;
-            background: #141418;
+            background: #111111;
         }
 
         .modal-btn {
@@ -679,29 +679,29 @@
         }
 
         .modal-btn.primary {
-            background: #F5A623;
-            color: #0E0E14;
+            background: #9B72CF;
+            color: #151515;
             border: none;
             font-weight: 800;
             font-family: inherit;
         }
 
         .modal-btn.primary:hover {
-            background: #E09218;
+            background: #7D5AB4;
             transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(245,166,35,0.4);
+            box-shadow: 0 4px 16px rgba(155,114,207,0.4);
         }
 
         .modal-btn.secondary {
             background: transparent;
-            color: #2DD4BF;
-            border: 1.5px solid #2DD4BF;
+            color: #9CBFE7;
+            border: 1px solid rgba(156,191,231,0.3);
             font-weight: 700;
             font-family: inherit;
         }
 
         .modal-btn.secondary:hover {
-            background: rgba(45,212,191,0.1);
+            background: rgba(156,191,231,0.1);
         }
 
         @media (max-width: 768px) {
@@ -726,8 +726,8 @@
 
         .submit-component-btn {
             padding: 10px 20px;
-            background: #F5A623;
-            color: #0E0E14;
+            background: #9B72CF;
+            color: #151515;
             border: none;
             border-radius: 10px;
             font-size: 0.9em;
@@ -742,16 +742,16 @@
         }
 
         .submit-component-btn:hover {
-            background: #E09218;
+            background: #7D5AB4;
             transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(245,166,35,0.4);
+            box-shadow: 0 4px 14px rgba(155,114,207,0.4);
         }
 
         .edit-component-btn {
             padding: 10px 20px;
             background: transparent;
-            color: #2DD4BF;
-            border: 1.5px solid #2DD4BF;
+            color: #9CBFE7;
+            border: 1px solid rgba(156,191,231,0.3);
             border-radius: 10px;
             font-size: 0.9em;
             font-weight: 800;
@@ -765,15 +765,15 @@
         }
 
         .edit-component-btn:hover {
-            background: rgba(45,212,191,0.12);
+            background: rgba(156,191,231,0.12);
             transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(45,212,191,0.25);
+            box-shadow: 0 4px 14px rgba(156,191,231,0.25);
         }
 
         /* ===== Feedback Banner (shown in edit mode when reviewer left notes) ===== */
         .prereq-banner {
-            background: rgba(45, 212, 191, 0.07);
-            border: 1.5px solid #2DD4BF;
+            background: rgba(156, 191, 231, 0.07);
+            border: 1px solid rgba(156,191,231,0.3);
             border-radius: 12px;
             padding: 18px 20px;
             margin-bottom: 28px;
@@ -783,7 +783,7 @@
             align-items: center;
             gap: 8px;
             font-weight: 800;
-            color: #2DD4BF;
+            color: #9CBFE7;
             font-size: 0.92em;
             text-transform: uppercase;
             letter-spacing: 0.04em;
@@ -795,15 +795,15 @@
             line-height: 1.7;
         }
         .prereq-banner-body a {
-            color: #2DD4BF;
+            color: #9CBFE7;
             font-weight: 700;
             text-decoration: underline;
             text-underline-offset: 3px;
         }
-        .prereq-banner-body a:hover { color: #F5A623; }
+        .prereq-banner-body a:hover { color: #9B72CF; }
         .feedback-banner {
-            background: rgba(245, 166, 35, 0.08);
-            border: 1.5px solid #F5A623;
+            background: rgba(155, 114, 207, 0.08);
+            border: 1px solid rgba(155,114,207,0.4);
             border-radius: 12px;
             padding: 16px 20px;
             margin-bottom: 24px;
@@ -813,7 +813,7 @@
             align-items: center;
             gap: 8px;
             font-weight: 800;
-            color: #F5A623;
+            color: #9B72CF;
             font-size: 0.92em;
             text-transform: uppercase;
             letter-spacing: 0.04em;
@@ -845,18 +845,18 @@
         }
 
         .submit-modal {
-            background: #141418;
+            background: #111111;
             border-radius: 20px;
             max-width: 940px;
             width: 100%;
             max-height: 92vh;
             overflow-y: auto;
-            border: 2px solid #2DD4BF;
+            border: 1px solid rgba(156,191,231,0.25);
             animation: slideUp 0.3s ease;
             display: flex;
             flex-direction: column;
             scrollbar-width: thin;
-            scrollbar-color: #2DD4BF transparent;
+            scrollbar-color: #9CBFE7 transparent;
         }
 
         .submit-modal::-webkit-scrollbar {
@@ -869,19 +869,19 @@
         }
 
         .submit-modal::-webkit-scrollbar-thumb {
-            background: #2DD4BF;
+            background: #9CBFE7;
             border-radius: 10px;
         }
 
         .submit-modal::-webkit-scrollbar-thumb:hover {
-            background: #F5A623;
+            background: #9B72CF;
         }
 
         .submit-modal-header {
             position: sticky;
             top: 0;
-            background: #141418;
-            border-bottom: 2px solid #2DD4BF;
+            background: #111111;
+            border-bottom: 1px solid rgba(156,191,231,0.2);
             padding: 22px 32px;
             display: flex;
             justify-content: space-between;
@@ -926,7 +926,7 @@
         .form-textarea {
             width: 100%;
             padding: 10px 14px;
-            background: #1A1D1F;
+            background: #1E1E1E;
             border: 1px solid #374151;
             border-radius: 8px;
             color: #FFFFFF;
@@ -936,7 +936,7 @@
         }
 
         .form-input:focus,
-        .form-textarea:focus { outline: none; border-color: #2DD4BF; box-shadow: 0 0 0 3px rgba(45,212,191,0.15); }
+        .form-textarea:focus { outline: none; border-color: #9CBFE7; box-shadow: 0 0 0 3px rgba(156,191,231,0.15); }
         .form-input::placeholder,
         .form-textarea::placeholder { color: #4B5563; }
         .form-input.field-error,
@@ -947,21 +947,21 @@
         .input-prefix-wrap {
             display: flex;
             align-items: stretch;
-            background: #1A1D1F;
+            background: #1E1E1E;
             border: 1px solid #374151;
             border-radius: 8px;
             overflow: hidden;
             transition: border-color 0.2s ease;
         }
 
-        .input-prefix-wrap:focus-within { border-color: #F5A623; }
+        .input-prefix-wrap:focus-within { border-color: #9B72CF; }
         .input-prefix-wrap.field-error { border-color: #EF4444; }
 
         .input-prefix {
             padding: 10px 12px;
             color: #6B7280;
             font-size: 0.925em;
-            background: #141418;
+            background: #111111;
             border-right: 1px solid #374151;
             white-space: nowrap;
             display: flex;
@@ -993,7 +993,7 @@
         }
 
         .file-drop-zone:hover,
-        .file-drop-zone.drag-over { border-color: #F5A623; background: rgba(107, 186, 255, 0.05); }
+        .file-drop-zone.drag-over { border-color: #9B72CF; background: rgba(107, 186, 255, 0.05); }
         .file-drop-zone.field-error { border-color: #EF4444; }
         .file-drop-zone.has-file { border-style: solid; border-color: #2EC98A; background: rgba(46, 201, 138, 0.05); }
 
@@ -1008,7 +1008,7 @@
 
         .file-drop-icon { font-size: 2em; color: #6B7280; margin-bottom: 8px; }
         .file-drop-text { color: #9CA3AF; font-size: 0.875em; line-height: 1.5; }
-        .file-drop-text strong { color: #F5A623; }
+        .file-drop-text strong { color: #9B72CF; }
         .file-drop-hint { font-size: 0.78em; color: #6B7280; margin-top: 4px; }
 
         .file-grid {
@@ -1024,7 +1024,7 @@
             overflow: hidden;
             border: 1px solid #374151;
             aspect-ratio: 4 / 3;
-            background: #1A1D1F;
+            background: #1E1E1E;
         }
 
         .file-thumb img {
@@ -1061,7 +1061,7 @@
             bottom: 4px;
             left: 4px;
             background: rgba(107, 186, 255, 0.92);
-            color: #1A1D1F;
+            color: #1E1E1E;
             font-size: 0.6em;
             font-weight: 700;
             padding: 2px 5px;
@@ -1090,8 +1090,8 @@
             transition: all 0.2s ease;
         }
 
-        .tag-pick-btn:hover { border-color: #2DD4BF; color: #2DD4BF; }
-        .tag-pick-btn.selected { background: #2DD4BF; color: #0E0E14; border-color: #2DD4BF; font-weight: 700; }
+        .tag-pick-btn:hover { border-color: #9CBFE7; color: #9CBFE7; }
+        .tag-pick-btn.selected { background: #9CBFE7; color: #151515; border-color: #9CBFE7; font-weight: 700; }
         .tag-picker.field-error .tag-pick-btn:not(.selected) { border-color: rgba(239, 68, 68, 0.5); }
 
         .field-error-msg {
@@ -1109,7 +1109,7 @@
             text-align: right;
             margin-top: 4px;
         }
-        .char-counter.near-limit { color: #F59E0B; }
+        .char-counter.near-limit { color: #9B72CF; }
         .char-counter.at-limit   { color: #EF4444; font-weight: 600; }
 
         /* ===== Block Editor ===== */
@@ -1120,7 +1120,7 @@
             background: #0D0F12;
             transition: border-color 0.2s;
         }
-        .wed-wrap:focus-within { border-color: #2DD4BF; }
+        .wed-wrap:focus-within { border-color: #9CBFE7; }
         .wed-wrap.field-error  { border-color: #EF4444; }
         .wed-toolbar {
             display: flex;
@@ -1147,7 +1147,7 @@
             gap: 5px;
         }
         .wed-btn:hover { background: #1C1F26; border-color: #2A2D36; color: #D1D5DB; }
-        .wed-btn.wed-active { background: rgba(45,212,191,0.12); border-color: rgba(45,212,191,0.3); color: #2DD4BF; }
+        .wed-btn.wed-active { background: rgba(156,191,231,0.12); border-color: rgba(156,191,231,0.3); color: #9CBFE7; }
         .wed-sep { width: 1px; height: 16px; background: #1C1F26; margin: 0 4px; flex-shrink: 0; }
         .wed-area { padding: 10px 8px; min-height: 140px; cursor: text; }
         /* Blocks */
@@ -1161,8 +1161,8 @@
         }
         .wed-block:hover > .wed-drag { opacity: 1; }
         .wed-block.wed-dragging { opacity: 0.25; }
-        .wed-block.wed-over-top { box-shadow: 0 -2px 0 #F5A623; }
-        .wed-block.wed-over-bot { box-shadow: 0  2px 0 #F5A623; }
+        .wed-block.wed-over-top { box-shadow: 0 -2px 0 #9B72CF; }
+        .wed-block.wed-over-bot { box-shadow: 0  2px 0 #9B72CF; }
         .wed-drag {
             flex-shrink: 0;
             width: 20px;
@@ -1188,7 +1188,7 @@
             word-break: break-word;
             padding: 2px 6px;
             min-height: 1.72em;
-            caret-color: #2DD4BF;
+            caret-color: #9CBFE7;
             font-family: inherit;
         }
         .wed-text:empty::before {
@@ -1235,14 +1235,14 @@
             width: 100%;
             outline: none;
             padding: 12px 16px;
-            color: #F5A623;
+            color: #9B72CF;
             background: transparent;
             font-family: 'SF Mono','Fira Code','Consolas',monospace;
             font-size: 0.88em;
             line-height: 1.7;
             white-space: pre-wrap;
             word-break: break-all;
-            caret-color: #2DD4BF;
+            caret-color: #9CBFE7;
             min-height: 3em;
         }
         .wed-code-input:empty::before { content: '// paste your code here…'; color: #2A2D36; pointer-events: none; }
@@ -1281,14 +1281,14 @@
         /* Footer */
         .submit-modal-footer {
             padding: 18px 32px;
-            border-top: 2px solid #2DD4BF;
+            border-top: 1px solid rgba(156,191,231,0.2);
             display: flex;
             gap: 12px;
             align-items: center;
             justify-content: flex-end;
             position: sticky;
             bottom: 0;
-            background: #141418;
+            background: #111111;
         }
 
         /* Success state */
@@ -1351,11 +1351,11 @@
             cursor: text;
         }
         [contenteditable]:hover {
-            background: rgba(45,212,191,0.07);
+            background: rgba(156,191,231,0.07);
         }
         [contenteditable]:focus {
-            background: rgba(45,212,191,0.1);
-            box-shadow: 0 0 0 1.5px rgba(45,212,191,0.4);
+            background: rgba(156,191,231,0.1);
+            box-shadow: 0 0 0 1.5px rgba(156,191,231,0.4);
         }
         .preview-edit-hint {
             text-align: center;
@@ -1388,13 +1388,13 @@
                 title: 'Advanced Chat Custom Component',
                 author: '@abusedmedia',
                 authorInitials: 'AM',
-                authorStyle: 'background: linear-gradient(135deg, #F5A623 0%, #8B7EFF 100%);',
+                authorStyle: 'background: linear-gradient(135deg, #9B72CF 0%, #8B7EFF 100%);',
                 image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240'%3E%3Crect fill='%23f8f9fa' width='400' height='240'/%3E%3Crect x='20' y='20' width='360' height='180' rx='12' fill='white' stroke='%23e5e7eb' stroke-width='2'/%3E%3Crect x='40' y='40' width='60' height='60' rx='30' fill='%236BBAFF'/%3E%3Crect x='115' y='45' width='220' height='15' rx='8' fill='%23e5e7eb'/%3E%3Crect x='115' y='70' width='180' height='15' rx='8' fill='%23f3f4f6'/%3E%3Crect x='40' y='120' width='60' height='60' rx='30' fill='%238B7EFF'/%3E%3Crect x='115' y='125' width='220' height='15' rx='8' fill='%23e5e7eb'/%3E%3Crect x='115' y='150' width='160' height='15' rx='8' fill='%23f3f4f6'/%3E%3C/svg%3E",
                 shortDescription: 'Modern chat UI with interactive widgets, extensible widget framework, and advanced flow controls. Compatible with both Retool AI Query and Retool Agent Query.',
                 fullDescription: 'Modern chat UI with interactive widgets, extensible widget framework, pinned panels, and advanced flow controls. Compatible with both Retool AI Query and Retool Agent Query. Features include dual query support, error handling, and tool call permissions.',
                 repoLink: 'https://github.com/abusedmedia/retool-custom-component-advanced-chat',
                 tags: [
-                    { name: 'Chat', style: 'background: #F5A623; color: #FFFFFF; border-color: #F5A623;' },
+                    { name: 'Chat', style: 'background: #9B72CF; color: #FFFFFF; border-color: #9B72CF;' },
                     { name: 'AI' },
                     { name: 'Agents' },
                     { name: 'Workflows' }
@@ -1435,13 +1435,13 @@
                 title: 'Interactive Gantt Chart',
                 author: '@retool-community',
                 authorInitials: 'RC',
-                authorStyle: 'background: linear-gradient(135deg, #F5A623 0%, #2EC98A 100%);',
+                authorStyle: 'background: linear-gradient(135deg, #9B72CF 0%, #2EC98A 100%);',
                 image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240'%3E%3Crect fill='%23f8f9fa' width='400' height='240'/%3E%3Crect x='20' y='40' width='100' height='20' rx='4' fill='%236BBAFF'/%3E%3Crect x='80' y='70' width='140' height='20' rx='4' fill='%238B7EFF'/%3E%3Crect x='40' y='100' width='180' height='20' rx='4' fill='%232EC98A'/%3E%3Crect x='120' y='130' width='160' height='20' rx='4' fill='%23F59E0B'/%3E%3Crect x='160' y='160' width='120' height='20' rx='4' fill='%23EF4444'/%3E%3Ctext x='20' y='30' font-family='Arial' font-size='12' fill='%23666'%3ETask%3C/text%3E%3Ctext x='200' y='30' font-family='Arial' font-size='12' fill='%23666'%3ETimeline%3C/text%3E%3C/svg%3E",
                 shortDescription: 'Visualize project timelines and task dependencies with an interactive Gantt chart. Built with JavaScript, supports drag and drop, and integrates with query results.',
                 fullDescription: 'Visualize project timelines and task dependencies with an interactive Gantt chart. Built with JavaScript, supports drag and drop, and integrates with query results. Perfect for project management and resource planning.',
                 repoLink: 'https://community.retool.com/tag/custom-component',
                 tags: [
-                    { name: 'Charts', style: 'background: #2EC98A; color: #1A1D1F; border-color: #2EC98A;' },
+                    { name: 'Charts', style: 'background: #2EC98A; color: #1E1E1E; border-color: #2EC98A;' },
                     { name: 'Gantt' }
                 ]
             },
@@ -1456,7 +1456,7 @@
                 fullDescription: 'Interactive mapping component built with Leaflet.js. Display markers, polygons, heatmaps, and custom overlays with support for GeoJSON data. Ideal for location-based applications and geographic visualizations.',
                 repoLink: 'https://community.retool.com/tag/custom-component',
                 tags: [
-                    { name: 'Maps', style: 'background: #34d399; color: #1A1D1F; border-color: #34d399;' }
+                    { name: 'Maps', style: 'background: #34d399; color: #1E1E1E; border-color: #34d399;' }
                 ]
             },
             {
@@ -1464,13 +1464,13 @@
                 title: 'Advanced Data Grid',
                 author: '@retool-community',
                 authorInitials: 'RC',
-                authorStyle: 'background: linear-gradient(135deg, #F5A623 0%, #8B7EFF 100%);',
+                authorStyle: 'background: linear-gradient(135deg, #9B72CF 0%, #8B7EFF 100%);',
                 image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='240'%3E%3Crect fill='%23f8f9fa' width='400' height='240'/%3E%3Crect x='20' y='20' width='360' height='40' fill='%236BBAFF' opacity='0.2'/%3E%3Ctext x='40' y='45' font-family='Arial' font-size='14' fill='%23374151' font-weight='bold'%3EName%3C/text%3E%3Ctext x='140' y='45' font-family='Arial' font-size='14' fill='%23374151' font-weight='bold'%3EStatus%3C/text%3E%3Ctext x='240' y='45' font-family='Arial' font-size='14' fill='%23374151' font-weight='bold'%3EDate%3C/text%3E%3Crect x='20' y='60' width='360' height='1' fill='%23e5e7eb'/%3E%3Ctext x='40' y='85' font-family='Arial' font-size='12' fill='%23666'%3EProject Alpha%3C/text%3E%3Crect x='140' y='75' width='60' height='18' rx='9' fill='%2310b981' opacity='0.2'/%3E%3Ctext x='155' y='87' font-family='Arial' font-size='11' fill='%2310b981'%3EActive%3C/text%3E%3Ctext x='240' y='85' font-family='Arial' font-size='12' fill='%23666'%3E2024-01-15%3C/text%3E%3Crect x='20' y='95' width='360' height='1' fill='%23f3f4f6'/%3E%3Ctext x='40' y='120' font-family='Arial' font-size='12' fill='%23666'%3EProject Beta%3C/text%3E%3Crect x='140' y='110' width='60' height='18' rx='9' fill='%23f59e0b' opacity='0.2'/%3E%3Ctext x='150' y='122' font-family='Arial' font-size='11' fill='%23f59e0b'%3EPending%3C/text%3E%3Ctext x='240' y='120' font-family='Arial' font-size='12' fill='%23666'%3E2024-01-20%3C/text%3E%3C/svg%3E",
                 shortDescription: 'High-performance data grid with sorting, filtering, pagination, and inline editing. Supports large datasets and custom cell renderers.',
                 fullDescription: 'High-performance data grid with sorting, filtering, pagination, and inline editing. Supports large datasets and custom cell renderers. Perfect for displaying and managing tabular data in your Retool applications.',
                 repoLink: 'https://community.retool.com/tag/custom-component',
                 tags: [
-                    { name: 'UI Components', style: 'background: #F5A623; color: #FFFFFF; border-color: #F5A623;' },
+                    { name: 'UI Components', style: 'background: #9B72CF; color: #FFFFFF; border-color: #9B72CF;' },
                     { name: 'Data Tables' }
                 ]
             },
@@ -1485,7 +1485,7 @@
                 fullDescription: 'Create beautiful charts and graphs with Chart.js. Supports line, bar, pie, donut, radar, and mixed chart types with full customization. Responsive and interactive visualizations for your data.',
                 repoLink: 'https://community.retool.com/tag/custom-component',
                 tags: [
-                    { name: 'Charts', style: 'background: #f59e0b; color: #1A1D1F; border-color: #f59e0b;' }
+                    { name: 'Charts', style: 'background: #f59e0b; color: #1E1E1E; border-color: #f59e0b;' }
                 ]
             }
         ];
@@ -2286,7 +2286,7 @@
                 } else if (code) {
                     html += '<pre style="background:#090B0D;border:1px solid #1C1F26;border-radius:8px;'
                           + 'padding:12px 16px;margin:8px 0;overflow-x:auto;">'
-                          + '<code style="font-family:monospace;color:#F5A623;font-size:.88em;">'
+                          + '<code style="font-family:monospace;color:#9B72CF;font-size:.88em;">'
                           + esc(code.textContent) + '</code></pre>';
                 } else if (img) {
                     html += '<img src="' + img.src + '" style="max-width:100%;border-radius:8px;display:block;margin:8px 0;">';
@@ -2354,7 +2354,7 @@
             const { icon: _pIcon, label: _pLabel } = _repoBtnContent(repoUrl);
 
             document.getElementById('previewCardSlot').innerHTML = `
-                <div style="background:#141418;border-radius:16px;border:1px solid #374151;overflow:hidden;">
+                <div style="background:#111111;border-radius:16px;border:1px solid #374151;overflow:hidden;">
                     <div class="modal-header" style="position:static;">
                         <div class="modal-title-section">
                             <h2 class="modal-title" contenteditable="true" id="pe-title">${esc(project)}</h2>
