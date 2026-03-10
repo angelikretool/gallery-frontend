@@ -913,13 +913,8 @@
             font-size: 0.93em;
             line-height: 1.72;
             margin-bottom: 26px;
+            white-space: pre-wrap;
         }
-        .feedback-notif-card-body img {
-            max-width: 100%;
-            border-radius: 10px;
-            margin: 10px 0;
-        }
-        .feedback-notif-card-body p { margin: 0 0 0.6em; }
         .feedback-notif-card-actions {
             display: flex;
             gap: 12px;
@@ -2515,7 +2510,7 @@
 
         function showFeedbackPopup() {
             const body = document.getElementById('feedbackNotifBody');
-            body.innerHTML = editData.feedback || '';
+            body.textContent = editData.feedback || '';
             document.getElementById('feedbackNotifOverlay').classList.add('open');
         }
 
@@ -2651,7 +2646,7 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                         Reviewer Feedback
                     </div>
-                    <div class="feedback-banner-body">${editData.feedback}</div>
+                    <div class="feedback-banner-body">${esc(editData.feedback)}</div>
                 `;
                 const formBody = document.getElementById('submitFormBody');
                 formBody.insertBefore(banner, formBody.firstChild);
