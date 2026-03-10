@@ -30,8 +30,8 @@ exports.handler = async (event) => {
     }
 
     // Step 2: poll server-side (no CORS issue here)
-    for (let i = 0; i < 12; i++) {
-        await new Promise(r => setTimeout(r, 700));
+    for (let i = 0; i < 20; i++) {
+        await new Promise(r => setTimeout(r, 1000));
         const pollRes  = await fetch(
             `https://api.retool.com/v1/workflows/${WORKFLOW_ID}/runs/${runId}?workflowApiKey=${WORKFLOW_KEY}`
         );
