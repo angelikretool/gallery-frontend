@@ -2423,6 +2423,34 @@
             return true;
         }
 
+        function wedLoadHTML(editorId, html) {
+            const area = document.getElementById(editorId + '-area');
+            if (!area || !html) return;
+            area.innerHTML = ''; // clear initWed's empty block
+
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+
+            let hasBlock = false;
+            for (const node of [...tmp.childNodes]) {
+                if (node.nodeType !== Node.ELEMENT_NODE) continue;
+                if (node.tagName === 'P') {
+                    area.appendChild(_wedMakeText(editorId, node.innerHTML));
+                    hasBlock = true;
+                } else if (node.tagName === 'PRE') {
+                    const block = _wedMakeCode(editorId);
+                    const codeEl = block.querySelector('.wed-code-input');
+                    if (codeEl) codeEl.textContent = node.querySelector('code')?.textContent || '';
+                    area.appendChild(block);
+                    hasBlock = true;
+                } else if (node.tagName === 'IMG') {
+                    area.appendChild(_wedMakeImage(editorId, node.src));
+                    hasBlock = true;
+                }
+            }
+            if (!hasBlock) area.appendChild(_wedMakeText(editorId, ''));
+        }
+
         function getWedHTML(editorId) {
             const area = document.getElementById(editorId + '-area');
             if (!area) return '';
@@ -2713,11 +2741,9 @@
             updateCharCounter('sf-project', 'sf-project-counter', 50);
             updateCharCounter('sf-about',   'sf-about-counter',   100);
 
-            // Pre-fill rich text areas with stored HTML
-            const howArea  = document.getElementById('sf-how-area');
-            const procArea = document.getElementById('sf-process-area');
-            if (howArea  && editData.how_it_works)  howArea.innerHTML  = editData.how_it_works;
-            if (procArea && editData.build_process) procArea.innerHTML = editData.build_process;
+            // Pre-fill rich text areas as proper editor blocks (so content is editable/deletable)
+            if (editData.how_it_works)  wedLoadHTML('sf-how',     editData.how_it_works);
+            if (editData.build_process) wedLoadHTML('sf-process',  editData.build_process);
 
             // Pre-select tags
             selectedTags = (editData.tags || '').split(',').map(t => t.trim()).filter(Boolean);
