@@ -771,32 +771,6 @@
         }
 
         /* ===== Feedback Banner (shown in edit mode when reviewer left notes) ===== */
-        .edit-notification-banner {
-            display: none;
-            background: rgba(155, 114, 207, 0.1);
-            border: 1px solid rgba(155,114,207,0.4);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 16px;
-            cursor: pointer;
-        }
-        .edit-notification-banner:hover { background: rgba(155, 114, 207, 0.16); }
-        .edit-notification-banner.visible { display: flex; align-items: center; gap: 14px; }
-        .edit-notification-icon { color: #9B72CF; flex-shrink: 0; }
-        .edit-notification-text { flex: 1; }
-        .edit-notification-text strong { color: #FFFFFF; font-size: 0.95em; display: block; margin-bottom: 3px; }
-        .edit-notification-text span { color: #9CA3AF; font-size: 0.88em; }
-        .edit-notification-cta {
-            background: #9B72CF;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 0.88em;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-        }
         .prereq-banner {
             background: rgba(156, 191, 231, 0.07);
             border: 1px solid rgba(156,191,231,0.3);
@@ -849,7 +823,107 @@
             color: #CBD5E1;
             font-size: 0.92em;
             line-height: 1.65;
-            white-space: pre-wrap;
+        }
+
+        /* ===== Feedback Notification Badge + Popup ===== */
+        .submit-btn-wrap {
+            position: relative;
+            display: inline-flex;
+        }
+        .notif-badge {
+            position: absolute;
+            top: -7px;
+            right: -7px;
+            width: 20px;
+            height: 20px;
+            background: #EF4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65em;
+            font-weight: 800;
+            color: #fff;
+            border: 2px solid #151515;
+            pointer-events: none;
+            z-index: 10;
+            animation: pulseBadge 2s ease-in-out infinite;
+        }
+        @keyframes pulseBadge {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+            50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+        }
+        .feedback-notif-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(7px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .feedback-notif-overlay.open {
+            display: flex;
+        }
+        .feedback-notif-card {
+            background: #111111;
+            border: 1px solid rgba(155,114,207,0.45);
+            border-radius: 20px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 82vh;
+            overflow-y: auto;
+            padding: 28px 32px;
+            animation: slideUp 0.3s ease;
+            scrollbar-width: thin;
+            scrollbar-color: #9B72CF transparent;
+        }
+        .feedback-notif-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+        .feedback-notif-card-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-weight: 800;
+            font-size: 0.88em;
+            color: #9B72CF;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .feedback-notif-card-close {
+            background: transparent;
+            border: none;
+            color: #6B7280;
+            font-size: 1.5em;
+            cursor: pointer;
+            line-height: 1;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: color 0.2s;
+        }
+        .feedback-notif-card-close:hover { color: #CBD5E1; }
+        .feedback-notif-card-body {
+            color: #CBD5E1;
+            font-size: 0.93em;
+            line-height: 1.72;
+            margin-bottom: 26px;
+        }
+        .feedback-notif-card-body img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .feedback-notif-card-body p { margin: 0 0 0.6em; }
+        .feedback-notif-card-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
         }
 
         /* ===== Submission Form Modal ===== */
@@ -1840,14 +1914,6 @@
 
                 <!-- Form -->
                 <div class="submit-modal-body" id="submitFormBody">
-                    ${editMode && editData?.feedback ? `
-                    <div class="feedback-banner">
-                        <div class="feedback-banner-title">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                            Reviewer Feedback
-                        </div>
-                        <div class="feedback-banner-body">${esc(editData.feedback)}</div>
-                    </div>` : `
                     <div class="prereq-banner">
                         <div class="prereq-banner-title">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
@@ -1855,9 +1921,9 @@
                         </div>
                         <div class="prereq-banner-body">
                             Your component must be added to our <a href="https://github.com/laboyangelik/retool-custom-component-gallery" target="_blank">community GitHub repository</a> with an open pull request before submitting this form. This is a hard requirement — submissions without a valid PR link will not be accepted.<br><br>
-                            Haven't opened your PR yet? Start with the <a href="https://github.com/tryretool/custom-component-collection-template" target="_blank">component template</a>, and come back once your pull request is open.
+                            Haven't opened your PR yet? Copy the component template, and come back once your pull request is open.
                         </div>
-                    </div>`}
+                    </div>
                     <form id="submitForm" novalidate>
                         <div class="form-row">
                             <div class="form-group">
@@ -2445,6 +2511,34 @@
             document.getElementById('submitModal').scrollTop = 0;
         }
 
+        // ===== Feedback Notification Popup =====
+
+        function showFeedbackPopup() {
+            const body = document.getElementById('feedbackNotifBody');
+            body.innerHTML = editData.feedback || '';
+            document.getElementById('feedbackNotifOverlay').classList.add('open');
+        }
+
+        function closeFeedbackPopup() {
+            document.getElementById('feedbackNotifOverlay').classList.remove('open');
+            // Remove badge once dismissed
+            const badge = document.getElementById('notifBadge');
+            if (badge) badge.remove();
+        }
+
+        function handleSubmitClick() {
+            if (editToken) {
+                // In edit mode: show feedback popup if feedback exists, else open edit form
+                if (editData && editData.feedback) {
+                    showFeedbackPopup();
+                } else {
+                    openEditModal();
+                }
+            } else {
+                openSubmitModal();
+            }
+        }
+
         // ===== Token Generation =====
 
         function generateToken() {
@@ -2467,7 +2561,7 @@
             const WORKFLOW_KEY = 'retool_wk_490325bf5e0648f38ad4c807f1537351';
 
             try {
-                // Trigger the synchronous workflow — data comes back in the response directly
+                // Step 1: trigger the workflow
                 const res  = await fetch(VALIDATE_WEBHOOK, {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2478,11 +2572,36 @@
 
                 if (!res.ok) { console.warn('[EditMode] Trigger HTTP error:', res.status); return; }
 
-                // Synchronous workflow returns data directly
-                const rowData = json.data ?? json;
+                const runId = json.workflow_run?.id;
+                if (!runId) { console.warn('[EditMode] No run ID'); return; }
+
+                // Step 2: poll for run completion (async workflow returns PENDING)
+                let rowData = null;
+                for (let i = 0; i < 10; i++) {
+                    await new Promise(r => setTimeout(r, 700));
+                    const pollRes = await fetch(
+                        `https://api.retool.com/v1/workflows/${WORKFLOW_ID}/runs/${runId}?workflowApiKey=${WORKFLOW_KEY}`
+                    );
+                    const poll = await pollRes.json();
+                    console.log(`[EditMode] Poll ${i + 1}: status=${poll?.workflow_run?.status}`, JSON.stringify(poll));
+
+                    if (poll.workflow_run?.status === 'COMPLETED') {
+                        // Try all known locations where Retool may put the output
+                        rowData = poll.workflow_run?.data
+                               ?? poll.workflow_run?.output
+                               ?? poll.workflow_run?.result
+                               ?? poll.data;
+                        break;
+                    }
+                    if (poll.workflow_run?.status === 'FAILED') {
+                        console.warn('[EditMode] Workflow run failed'); break;
+                    }
+                }
+
+                if (!rowData) { console.warn('[EditMode] No row data after polling'); return; }
                 console.log('[EditMode] Row data:', JSON.stringify(rowData));
 
-                // Handle possible nesting
+                // Handle possible nesting: { data: { project_name } } or { project_name } directly
                 const submission = (rowData && typeof rowData === 'object' && rowData.data) ? rowData.data : rowData;
                 if (!submission?.project_name) {
                     console.warn('[EditMode] project_name missing from submission:', JSON.stringify(submission)); return;
@@ -2492,18 +2611,29 @@
                 editData  = submission;
                 editMode  = false;
 
-                // Attach reviewer feedback from DB row if present
-                if (!editData.feedback) {
-                    const feedbackParam = new URLSearchParams(window.location.search).get('feedback');
-                    if (feedbackParam) editData.feedback = feedbackParam;
-                }
+                // Attach reviewer feedback if present in the URL (?feedback=...)
+                const feedbackParam = new URLSearchParams(window.location.search).get('feedback');
+                if (feedbackParam) editData.feedback = feedbackParam;
 
-                // Show the notification banner instead of auto-opening
-                const banner = document.getElementById('editNotificationBanner');
-                document.getElementById('editNotificationTitle').textContent =
-                    `Your component needs changes — ${editData.project_name}`;
-                banner.classList.add('visible');
-                console.log('[EditMode] Notification shown for:', editData.project_name);
+                const btn = document.getElementById('edit-component-btn');
+                btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Edit: ${esc(editData.project_name)}`;
+                btn.style.display = 'flex';
+                console.log('[EditMode] Button shown for:', editData.project_name);
+
+                // Show notification badge on submit button if there's feedback
+                if (editData.feedback) {
+                    const wrap = document.getElementById('submitBtnWrap');
+                    const badge = document.createElement('span');
+                    badge.className = 'notif-badge';
+                    badge.id = 'notifBadge';
+                    badge.textContent = '1';
+                    wrap.appendChild(badge);
+                    // Auto-show the feedback popup
+                    showFeedbackPopup();
+                } else {
+                    // No feedback — open the edit form directly
+                    openEditModal();
+                }
             } catch (e) {
                 console.error('[EditMode] Error:', e);
             }
@@ -2520,7 +2650,7 @@
             document.getElementById('sf-username').value = editData.username    || '';
             document.getElementById('sf-email').value   = editData.email        || '';
             document.getElementById('sf-project').value = editData.project_name || '';
-            document.getElementById('sf-repo').value    = editData.pr_link      || '';
+            document.getElementById('sf-repo').value    = editData.pr_link      || editData.repo_link || '';
             document.getElementById('sf-about').value   = editData.about        || '';
             document.getElementById('sf-video').value   = editData.video_url    || '';
             updateCharCounter('sf-project', 'sf-project-counter', 50);
@@ -2541,6 +2671,21 @@
             // Update modal labels for edit mode
             document.getElementById('submitModalTitle').textContent = 'Edit Your Component';
             document.querySelector('#footerFormBtns .modal-btn.primary').textContent = 'Preview Changes \u2192';
+
+            // Inject reviewer feedback banner at the top of the form if present
+            if (editData.feedback) {
+                const banner = document.createElement('div');
+                banner.className = 'feedback-banner';
+                banner.innerHTML = `
+                    <div class="feedback-banner-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        Reviewer Feedback
+                    </div>
+                    <div class="feedback-banner-body">${editData.feedback}</div>
+                `;
+                const formBody = document.getElementById('submitFormBody');
+                formBody.insertBefore(banner, formBody.firstChild);
+            }
 
             document.getElementById('submitOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -2569,7 +2714,7 @@
                 username:      document.getElementById('sf-username').value.trim(),
                 email:         document.getElementById('sf-email').value.trim(),
                 project_name:  document.getElementById('sf-project').value.trim(),
-                pr_link:       document.getElementById('sf-repo').value.trim(),
+                repo_link:     document.getElementById('sf-repo').value.trim(),
                 about:         document.getElementById('sf-about').value.trim(),
                 how_it_works:  getWedHTML('sf-how'),
                 build_process: getWedHTML('sf-process'),
@@ -2610,23 +2755,15 @@
 </head>
 <body>
     <div class="container">
-        <div id="editNotificationBanner" class="edit-notification-banner" onclick="openEditModal()">
-            <div class="edit-notification-icon">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-            </div>
-            <div class="edit-notification-text">
-                <strong id="editNotificationTitle">Your component needs changes</strong>
-                <span>Our team left feedback on your submission. Click to review and resubmit.</span>
-            </div>
-            <button class="edit-notification-cta">Review Feedback</button>
-        </div>
         <div class="header">
             <div class="header-nav">
                 <div class="header-nav-left">
-                    <button class="submit-component-btn" onclick="openSubmitModal()">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-                        Submit Component
-                    </button>
+                    <div class="submit-btn-wrap" id="submitBtnWrap">
+                        <button class="submit-component-btn" id="submitComponentBtn" onclick="handleSubmitClick()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            Submit Component
+                        </button>
+                    </div>
                     <button class="edit-component-btn" id="edit-component-btn" onclick="openEditModal()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         Edit My Component
@@ -2702,6 +2839,27 @@
 
     <!-- Submission Form Modal -->
     <div class="submit-overlay" id="submitOverlay"></div>
+
+    <!-- Feedback Notification Popup -->
+    <div class="feedback-notif-overlay" id="feedbackNotifOverlay">
+        <div class="feedback-notif-card">
+            <div class="feedback-notif-card-header">
+                <div class="feedback-notif-card-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                    Reviewer Feedback
+                </div>
+                <button class="feedback-notif-card-close" onclick="closeFeedbackPopup()">&times;</button>
+            </div>
+            <div class="feedback-notif-card-body" id="feedbackNotifBody"></div>
+            <div class="feedback-notif-card-actions">
+                <button class="modal-btn secondary" onclick="closeFeedbackPopup()">Dismiss</button>
+                <button class="modal-btn primary" onclick="closeFeedbackPopup(); openEditModal();">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                    Edit My Submission
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast notification -->
     <div id="toast" class="toast"></div>
