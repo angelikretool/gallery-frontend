@@ -2751,6 +2751,20 @@
                 if (selectedTags.includes(btn.textContent.trim())) btn.classList.add('selected');
             });
 
+            // Show existing cover image preview
+            if (editData.cover_image) {
+                const zone = document.getElementById('sf-file-zone');
+                const grid = document.getElementById('sf-file-grid');
+                const dropText = document.getElementById('sf-drop-text');
+                if (zone && grid) {
+                    zone.classList.add('has-file');
+                    if (dropText) dropText.innerHTML = '<strong>Replace cover</strong> or drag and drop';
+                    grid.innerHTML = `<div class="file-thumb">
+                        <img src="${editData.cover_image}" alt="Current cover">
+                    </div>`;
+                }
+            }
+
             // Update modal labels for edit mode
             document.getElementById('submitModalTitle').textContent = 'Edit Your Component';
             document.querySelector('#footerFormBtns .modal-btn.primary').textContent = 'Preview Changes \u2192';
