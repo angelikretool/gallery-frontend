@@ -913,6 +913,40 @@
             font-size: 0.93em;
             line-height: 1.72;
             margin-bottom: 26px;
+        }
+        .feedback-notif-card-body .fb-section {
+            margin-bottom: 16px;
+        }
+        .feedback-notif-card-body .fb-heading {
+            font-weight: 800;
+            font-size: 0.82em;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9B72CF;
+            margin-bottom: 6px;
+        }
+        .feedback-notif-card-body .fb-bullets {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .feedback-notif-card-body .fb-bullets li {
+            padding-left: 16px;
+            position: relative;
+            color: #CBD5E1;
+        }
+        .feedback-notif-card-body .fb-bullets li::before {
+            content: '–';
+            position: absolute;
+            left: 0;
+            color: #9B72CF;
+            font-weight: 700;
+        }
+        .feedback-notif-card-body .fb-plain {
+            color: #CBD5E1;
             white-space: pre-wrap;
         }
         .feedback-notif-card-actions {
@@ -2508,9 +2542,49 @@
 
         // ===== Feedback Notification Popup =====
 
+        function renderFeedback(text) {
+            // Parse agent feedback into headed sections + bullet lists
+            const lines = (text || '').split('\n');
+            let html = '';
+            let currentBullets = [];
+            let currentHeading = null;
+
+            function flushSection() {
+                if (!currentHeading && currentBullets.length === 0) return;
+                html += '<div class="fb-section">';
+                if (currentHeading) html += `<div class="fb-heading">${esc(currentHeading)}</div>`;
+                if (currentBullets.length) {
+                    html += '<ul class="fb-bullets">';
+                    currentBullets.forEach(b => { html += `<li>${esc(b)}</li>`; });
+                    html += '</ul>';
+                }
+                html += '</div>';
+                currentHeading = null;
+                currentBullets = [];
+            }
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) { flushSection(); return; }
+                // "Field Name:" lines become section headings
+                if (/^[A-Za-z][^:]{1,40}:$/.test(trimmed)) {
+                    flushSection();
+                    currentHeading = trimmed.replace(/:$/, '');
+                // "- bullet" lines
+                } else if (/^[-•*]/.test(trimmed)) {
+                    currentBullets.push(trimmed.replace(/^[-•*]\s*/, ''));
+                } else {
+                    flushSection();
+                    html += `<div class="fb-plain">${esc(trimmed)}</div>`;
+                }
+            });
+            flushSection();
+            return html;
+        }
+
         function showFeedbackPopup() {
             const body = document.getElementById('feedbackNotifBody');
-            body.textContent = editData.feedback || '';
+            body.innerHTML = renderFeedback(editData.feedback);
             document.getElementById('feedbackNotifOverlay').classList.add('open');
         }
 
