@@ -2753,15 +2753,20 @@
 
             // Show existing cover image preview
             if (editData.cover_image) {
-                const zone = document.getElementById('sf-file-zone');
-                const grid = document.getElementById('sf-file-grid');
+                const zone     = document.getElementById('sf-file-zone');
+                const grid     = document.getElementById('sf-file-grid');
                 const dropText = document.getElementById('sf-drop-text');
                 if (zone && grid) {
                     zone.classList.add('has-file');
                     if (dropText) dropText.innerHTML = '<strong>Replace cover</strong> or drag and drop';
-                    grid.innerHTML = `<div class="file-thumb">
-                        <img src="${editData.cover_image}" alt="Current cover">
-                    </div>`;
+                    grid.innerHTML = '';
+                    const thumb = document.createElement('div');
+                    thumb.className = 'file-thumb';
+                    const img = document.createElement('img');
+                    img.alt = 'Current cover';
+                    img.src = editData.cover_image; // set as property, not HTML attr — handles large base64
+                    thumb.appendChild(img);
+                    grid.appendChild(thumb);
                 }
             }
 
