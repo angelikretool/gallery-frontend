@@ -2028,6 +2028,8 @@
                                         <button type="button" class="wed-btn" title="Insert code block" onmousedown="event.preventDefault()" onclick="wedInsertCode('sf-how')"><span style="font-family:monospace;font-size:1.1em">&lt;/&gt;</span> Code</button>
                                         <button type="button" class="wed-btn" title="Insert screenshot or GIF" onmousedown="event.preventDefault()" onclick="document.getElementById('sf-how-img-input').click()">&#128247; Screenshot / GIF</button>
                                         <input type="file" id="sf-how-img-input" accept="image/*,.gif" multiple style="display:none" onchange="wedInsertImage(this,'sf-how')">
+                                        <span class="wed-sep"></span>
+                                        <button type="button" class="wed-btn" title="Clear content" onmousedown="event.preventDefault()" onclick="document.getElementById('sf-how-area').innerHTML=''">&#x2715; Clear</button>
                                     </div>
                                     <div class="wed-area" id="sf-how-area"></div>
                                 </div>
@@ -2042,6 +2044,8 @@
                                         <button type="button" class="wed-btn" title="Insert code block" onmousedown="event.preventDefault()" onclick="wedInsertCode('sf-process')"><span style="font-family:monospace;font-size:1.1em">&lt;/&gt;</span> Code</button>
                                         <button type="button" class="wed-btn" title="Insert screenshot or GIF" onmousedown="event.preventDefault()" onclick="document.getElementById('sf-process-img-input').click()">&#128247; Screenshot / GIF</button>
                                         <input type="file" id="sf-process-img-input" accept="image/*,.gif" multiple style="display:none" onchange="wedInsertImage(this,'sf-process')">
+                                        <span class="wed-sep"></span>
+                                        <button type="button" class="wed-btn" title="Clear content" onmousedown="event.preventDefault()" onclick="document.getElementById('sf-process-area').innerHTML=''">&#x2715; Clear</button>
                                     </div>
                                     <div class="wed-area" id="sf-process-area"></div>
                                 </div>
