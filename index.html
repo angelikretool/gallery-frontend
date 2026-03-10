@@ -2557,8 +2557,11 @@
 
             console.log('[EditMode] Token found:', token);
 
+            const WORKFLOW_ID  = '109e8eb2-507b-4573-9ab3-fce34a58107f';
+            const WORKFLOW_KEY = 'retool_wk_490325bf5e0648f38ad4c807f1537351';
+
             try {
-                // Synchronous workflow — data comes back in the trigger response directly
+                // Step 1: trigger — workflow is async, returns PENDING + a run ID
                 const res  = await fetch(VALIDATE_WEBHOOK, {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2569,13 +2572,43 @@
 
                 if (!res.ok) { console.warn('[EditMode] Trigger HTTP error:', res.status); return; }
 
-                // Response shape from Retool: { "return": { "data": { project_name, ... } } }
-                // Fall back through possible shapes defensively
-                const submission = json?.return?.data ?? json?.return ?? json?.data ?? json;
+                const runId = json.workflow_run?.id;
+                if (!runId) { console.warn('[EditMode] No run ID in response'); return; }
+
+                // Step 2: poll until COMPLETED
+                let completedPoll = null;
+                for (let i = 0; i < 12; i++) {
+                    await new Promise(r => setTimeout(r, 800));
+                    const pollRes = await fetch(
+                        `https://api.retool.com/v1/workflows/${WORKFLOW_ID}/runs/${runId}?workflowApiKey=${WORKFLOW_KEY}`
+                    );
+                    const poll = await pollRes.json();
+                    console.log(`[EditMode] Poll ${i + 1} status:`, poll?.workflow_run?.status);
+
+                    if (poll.workflow_run?.status === 'COMPLETED') {
+                        console.log('[EditMode] COMPLETED — full poll response:', JSON.stringify(poll));
+                        completedPoll = poll;
+                        break;
+                    }
+                    if (poll.workflow_run?.status === 'FAILED') {
+                        console.warn('[EditMode] Run failed:', JSON.stringify(poll)); return;
+                    }
+                }
+
+                if (!completedPoll) { console.warn('[EditMode] Timed out waiting for run'); return; }
+
+                // Extract submission — try every known location Retool may place the output
+                const wr = completedPoll.workflow_run;
+                const submission =
+                    wr?.data?.return?.data ?? wr?.data?.return ?? wr?.data ??
+                    wr?.output?.return?.data ?? wr?.output?.return ?? wr?.output ??
+                    wr?.result?.return?.data ?? wr?.result?.return ?? wr?.result ??
+                    completedPoll?.data?.return?.data ?? completedPoll?.data?.return ?? completedPoll?.data;
+
                 console.log('[EditMode] Submission extracted:', JSON.stringify(submission));
 
                 if (!submission?.project_name) {
-                    console.warn('[EditMode] project_name missing. Full response was:', JSON.stringify(json)); return;
+                    console.warn('[EditMode] project_name missing. workflow_run keys:', Object.keys(wr || {})); return;
                 }
 
                 editToken = token;
