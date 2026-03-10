@@ -2557,11 +2557,8 @@
 
             console.log('[EditMode] Token found:', token);
 
-            const WORKFLOW_ID  = '109e8eb2-507b-4573-9ab3-fce34a58107f';
-            const WORKFLOW_KEY = 'retool_wk_490325bf5e0648f38ad4c807f1537351';
-
             try {
-                // Step 1: trigger the workflow
+                // Synchronous workflow — data comes back in the trigger response directly
                 const res  = await fetch(VALIDATE_WEBHOOK, {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2572,39 +2569,13 @@
 
                 if (!res.ok) { console.warn('[EditMode] Trigger HTTP error:', res.status); return; }
 
-                const runId = json.workflow_run?.id;
-                if (!runId) { console.warn('[EditMode] No run ID'); return; }
+                // Response shape from Retool: { "return": { "data": { project_name, ... } } }
+                // Fall back through possible shapes defensively
+                const submission = json?.return?.data ?? json?.return ?? json?.data ?? json;
+                console.log('[EditMode] Submission extracted:', JSON.stringify(submission));
 
-                // Step 2: poll for run completion (async workflow returns PENDING)
-                let rowData = null;
-                for (let i = 0; i < 10; i++) {
-                    await new Promise(r => setTimeout(r, 700));
-                    const pollRes = await fetch(
-                        `https://api.retool.com/v1/workflows/${WORKFLOW_ID}/runs/${runId}?workflowApiKey=${WORKFLOW_KEY}`
-                    );
-                    const poll = await pollRes.json();
-                    console.log(`[EditMode] Poll ${i + 1}: status=${poll?.workflow_run?.status}`, JSON.stringify(poll));
-
-                    if (poll.workflow_run?.status === 'COMPLETED') {
-                        // Try all known locations where Retool may put the output
-                        rowData = poll.workflow_run?.data
-                               ?? poll.workflow_run?.output
-                               ?? poll.workflow_run?.result
-                               ?? poll.data;
-                        break;
-                    }
-                    if (poll.workflow_run?.status === 'FAILED') {
-                        console.warn('[EditMode] Workflow run failed'); break;
-                    }
-                }
-
-                if (!rowData) { console.warn('[EditMode] No row data after polling'); return; }
-                console.log('[EditMode] Row data:', JSON.stringify(rowData));
-
-                // Handle possible nesting: { data: { project_name } } or { project_name } directly
-                const submission = (rowData && typeof rowData === 'object' && rowData.data) ? rowData.data : rowData;
                 if (!submission?.project_name) {
-                    console.warn('[EditMode] project_name missing from submission:', JSON.stringify(submission)); return;
+                    console.warn('[EditMode] project_name missing. Full response was:', JSON.stringify(json)); return;
                 }
 
                 editToken = token;
