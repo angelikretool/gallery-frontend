@@ -1650,6 +1650,7 @@
 
         const VALIDATE_WEBHOOK = 'https://api.retool.com/v1/workflows/109e8eb2-507b-4573-9ab3-fce34a58107f/startTrigger?workflowApiKey=retool_wk_490325bf5e0648f38ad4c807f1537351';
         const UPDATE_WEBHOOK   = 'https://api.retool.com/v1/workflows/50a3d9a0-fa02-4f25-867d-8cea0ef69a4b/startTrigger?workflowApiKey=retool_wk_6877faad708f49e3b83b67f05768e8a9';
+        const GALLERY_WEBHOOK  = ''; // TODO: paste your "fetch-approved-submissions" workflow trigger URL here
 
         let editMode  = false;
         let editToken = null;
@@ -1743,6 +1744,58 @@
         }
 
         // ===== Render =====
+
+        function _authorStyle(username) {
+            const palettes = [
+                ['#9B72CF','#8B7EFF'],['#8B7EFF','#EC4899'],['#2563eb','#10b981'],
+                ['#9B72CF','#2EC98A'],['#34d399','#3b82f6'],['#f59e0b','#ef4444'],
+                ['#6BBAFF','#8B7EFF'],['#2EC98A','#6BBAFF']
+            ];
+            let h = 0;
+            for (const c of (username || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
+            const [a, b] = palettes[h % palettes.length];
+            return `background: linear-gradient(135deg, ${a} 0%, ${b} 100%);`;
+        }
+
+        async function loadGalleryFromDB() {
+            if (!GALLERY_WEBHOOK) return;
+            try {
+                const res = await fetch(GALLERY_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}'
+                });
+                const json = await res.json();
+                const rows = json?.return?.data ?? json?.return ?? json?.data ?? [];
+                if (!Array.isArray(rows)) return;
+                rows.forEach(row => {
+                    if (components.some(c => c.id === String(row.id))) return;
+                    const handle = row.username
+                        ? (row.username.startsWith('@') ? row.username : '@' + row.username)
+                        : '@unknown';
+                    components.push({
+                        id:               String(row.id),
+                        title:            row.project_name || '',
+                        author:           handle,
+                        authorInitials:   handle.replace('@','').slice(0,2).toUpperCase(),
+                        authorStyle:      _authorStyle(row.username || ''),
+                        image:            row.cover_image || '',
+                        shortDescription: row.about || '',
+                        fullDescription:  row.about || '',
+                        repoLink:         row.pr_link || '',
+                        videoUrl:         row.video_url || '',
+                        howItWorks:       row.how_it_works || '',
+                        buildProcess:     row.build_process || '',
+                        tags:             row.tags
+                            ? row.tags.split(',').map(t => ({ name: t.trim() })).filter(t => t.name)
+                            : []
+                    });
+                });
+                renderGallery();
+            } catch(e) {
+                console.error('[Gallery] Failed to load submissions:', e);
+            }
+        }
 
         function renderGallery() {
             const sessionVote = getSessionVote();
@@ -1867,6 +1920,19 @@
                 `<span class="modal-tag" style="${tag.style || ''}">${tag.name}</span>`
             ).join('');
 
+            // Extra sections from DB submissions
+            const howEl = document.getElementById('modalHowItWorks');
+            const processEl = document.getElementById('modalBuildProcess');
+            const videoEl = document.getElementById('modalVideoSection');
+
+            if (howEl) { howEl.style.display = comp.howItWorks ? '' : 'none'; howEl.querySelector('div').innerHTML = comp.howItWorks || ''; }
+            if (processEl) { processEl.style.display = comp.buildProcess ? '' : 'none'; processEl.querySelector('div').innerHTML = comp.buildProcess || ''; }
+            if (videoEl) {
+                const embedUrl = comp.videoUrl ? _getEmbedUrl(comp.videoUrl) : '';
+                videoEl.style.display = embedUrl ? '' : 'none';
+                if (embedUrl) videoEl.querySelector('iframe').src = embedUrl;
+            }
+
             document.getElementById('componentModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -1882,6 +1948,7 @@
             renderGallery();
             buildSubmitModal();
             initEditMode();
+            loadGalleryFromDB();
 
             // Search
             document.querySelector('.search-box input').addEventListener('input', function () {
@@ -2526,7 +2593,7 @@
             const repoUrl   = document.getElementById('sf-repo').value.trim();
             const videoUrl  = document.getElementById('sf-video').value.trim();
             const embedUrl  = _getEmbedUrl(videoUrl);
-            const imgSrc    = uploadedFiles.length > 0 ? uploadedFiles[0].dataUrl : '';
+            const imgSrc    = uploadedFiles.length > 0 ? uploadedFiles[0].dataUrl : (editMode && editData ? editData.cover_image || '' : '');
             const initials  = username.replace('@','').slice(0,2).toUpperCase();
 
             const tagsHtml = selectedTags.map(t => `<span class="modal-tag">${esc(t)}</span>`).join('');
@@ -2919,6 +2986,20 @@
                 <div class="modal-section">
                     <h3>About this component</h3>
                     <p id="modalDescription"></p>
+                </div>
+                <div class="modal-section" id="modalHowItWorks" style="display:none;">
+                    <h3>How it works</h3>
+                    <div></div>
+                </div>
+                <div class="modal-section" id="modalVideoSection" style="display:none;">
+                    <h3>Demo Video</h3>
+                    <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;background:#0D0F12;">
+                        <iframe src="" style="position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:10px;" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="modal-section" id="modalBuildProcess" style="display:none;">
+                    <h3>Build process</h3>
+                    <div></div>
                 </div>
                 <div class="modal-section">
                     <h3>Tags</h3>
