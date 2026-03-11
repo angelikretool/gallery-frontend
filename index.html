@@ -2673,23 +2673,23 @@
             console.log('[EditMode] Token found:', token);
 
             try {
-                // Call our Netlify function — it handles trigger + polling server-side (no CORS)
-                const res  = await fetch('/api/lookup', {
+                // Call Retool directly — startTrigger POST allows CORS from browser
+                const res  = await fetch(VALIDATE_WEBHOOK, {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body:    JSON.stringify({ token })
                 });
                 const json = await res.json();
-                console.log('[EditMode] Lookup response:', JSON.stringify(json));
+                console.log('[EditMode] Response:', JSON.stringify(json).substring(0, 300));
 
-                if (!res.ok) { console.warn('[EditMode] Lookup failed:', res.status, json); return; }
+                if (!res.ok) { console.warn('[EditMode] HTTP error:', res.status); return; }
 
-                const submission = json.submission;
-                console.log('[EditMode] Submission:', JSON.stringify(submission));
-                console.log('[EditMode] workflow_run keys from server:', json._wr_keys);
+                // Workflow returns data synchronously: { "return": { "data": { ... } } }
+                const submission = json?.return?.data ?? json?.return ?? json?.data;
+                console.log('[EditMode] Submission project_name:', submission?.project_name);
 
                 if (!submission?.project_name) {
-                    console.warn('[EditMode] project_name missing. _wr_keys:', json._wr_keys); return;
+                    console.warn('[EditMode] project_name missing. Full response:', JSON.stringify(json).substring(0, 500)); return;
                 }
 
                 editToken = token;
