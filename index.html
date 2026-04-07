@@ -487,6 +487,184 @@
         .skeleton-desc2  { height: 13px; width: 75%; }
         .skeleton-tag    { height: 22px; width: 70px; display: inline-block; border-radius: 20px; }
 
+        /* ===== View Tabs ===== */
+        .view-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(156,191,231,0.12);
+        }
+        .view-tab {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #6B7280;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.88em;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            padding: 10px 20px;
+            margin-bottom: -1px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .view-tab:hover { color: #CBD5E1; }
+        .view-tab.active { color: #9B72CF; border-bottom-color: #9B72CF; }
+
+        /* ===== Request Board ===== */
+        .request-board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .request-board-meta { color: #6B7280; font-size: 0.85em; }
+        .request-submit-btn {
+            background: linear-gradient(135deg, #9B72CF, #8B7EFF);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            font-weight: 600;
+            padding: 9px 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.15s;
+        }
+        .request-submit-btn:hover { opacity: 0.85; }
+        .request-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+        }
+        .request-card {
+            background: #1E1E1E;
+            border: 1px solid rgba(156,191,231,0.2);
+            border-radius: 14px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .request-card:hover {
+            border-color: rgba(155,114,207,0.45);
+            box-shadow: 0 4px 20px rgba(155,114,207,0.1);
+        }
+        .request-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .request-card-title {
+            font-size: 0.97em;
+            font-weight: 700;
+            color: #E5E7EB;
+            line-height: 1.35;
+            flex: 1;
+        }
+        .request-vote-btn {
+            background: none;
+            border: 1px solid rgba(156,191,231,0.2);
+            border-radius: 8px;
+            color: #9CBFE7;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            padding: 5px 11px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .request-vote-btn:hover:not(:disabled) {
+            background: rgba(155,114,207,0.12);
+            border-color: #9B72CF;
+            color: #9B72CF;
+        }
+        .request-vote-btn.voted {
+            background: rgba(155,114,207,0.15);
+            border-color: #9B72CF;
+            color: #9B72CF;
+            cursor: default;
+        }
+        .request-card-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82em;
+            color: #6B7280;
+        }
+        .request-author-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.65em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .request-status {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .request-status.open      { background: rgba(46,201,138,0.12); color: #2EC98A; border: 1px solid rgba(46,201,138,0.25); }
+        .request-status.claimed   { background: rgba(245,158,11,0.12);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+        .request-status.fulfilled { background: rgba(155,114,207,0.12); color: #9B72CF; border: 1px solid rgba(155,114,207,0.25); }
+        .request-card-desc {
+            font-size: 0.87em;
+            color: #9CA3AF;
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ===== Request Submit Modal ===== */
+        .request-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .request-overlay.active { opacity: 1; pointer-events: all; }
+        .request-modal {
+            background: #1a1a1a;
+            border: 1px solid rgba(156,191,231,0.2);
+            border-radius: 18px;
+            padding: 36px;
+            width: min(520px, 94vw);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .request-modal-title { font-size: 1.25em; font-weight: 800; color: #E5E7EB; }
+        .request-modal-sub { font-size: 0.84em; color: #6B7280; margin-top: 4px; margin-bottom: 28px; }
+
         /* ===== Modal Styles ===== */
 
         .modal-overlay {
@@ -1568,9 +1746,15 @@
             '@jamesg31',
         ]);
 
+        // ===== Request Board Webhooks =====
+        // Wire these up once you've created the workflows in Retool
+        const REQUESTS_WEBHOOK       = '';
+        const SUBMIT_REQUEST_WEBHOOK = '';
+        const REQUESTS_CACHE_KEY     = 'retool_requests_cache';
+
         // ===== Edit Mode =====
 
-        const VALIDATE_WEBHOOK = 'https://api.retool.com/v1/workflows/109e8eb2-507b-4573-9ab3-fce34a58107f/startTrigger?workflowApiKey=retool_wk_490325bf5e0648f38ad4c807f1537351';
+        const VALIDATE_WEBHOOK ='https://api.retool.com/v1/workflows/109e8eb2-507b-4573-9ab3-fce34a58107f/startTrigger?workflowApiKey=retool_wk_490325bf5e0648f38ad4c807f1537351';
         const UPDATE_WEBHOOK   = 'https://api.retool.com/v1/workflows/50a3d9a0-fa02-4f25-867d-8cea0ef69a4b/startTrigger?workflowApiKey=retool_wk_6877faad708f49e3b83b67f05768e8a9';
         const GALLERY_WEBHOOK  = 'https://api.retool.com/v1/workflows/e677746f-400d-4358-bdeb-64d1a53771b8/startTrigger?workflowApiKey=retool_wk_d60e3f9bf3d34aac8d5b0df41ee97147';
 
@@ -1908,6 +2092,238 @@
             document.body.style.overflow = 'auto';
         }
 
+        // ===== Request Board State =====
+
+        let currentView     = 'gallery';
+        let requests        = [];
+        let requestsLoading = true;
+        let requestVotes    = {};
+        try { requestVotes = JSON.parse(localStorage.getItem('retoolRequestVotes') || '{}'); } catch(e) {}
+
+        function saveRequestVotes() {
+            try { localStorage.setItem('retoolRequestVotes', JSON.stringify(requestVotes)); } catch(e) {}
+        }
+        function getSessionRequestVote() {
+            return sessionStorage.getItem('retoolRequestSessionVote');
+        }
+
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-tab').forEach(t =>
+                t.classList.toggle('active', t.dataset.view === view)
+            );
+            const isGallery = view === 'gallery';
+            document.getElementById('gallery').style.display        = isGallery ? '' : 'none';
+            document.getElementById('requests-board').style.display = isGallery ? 'none' : '';
+            document.querySelector('.filters').style.display        = isGallery ? '' : 'none';
+            if (!isGallery) renderRequests();
+        }
+
+        async function loadRequestsFromDB() {
+            if (!REQUESTS_WEBHOOK) {
+                requestsLoading = false;
+                return;
+            }
+            // Serve cache immediately
+            try {
+                const cached = localStorage.getItem(REQUESTS_CACHE_KEY);
+                if (cached) {
+                    requests = JSON.parse(cached);
+                    requestsLoading = false;
+                    if (currentView === 'requests') renderRequests();
+                }
+            } catch(e) {}
+            // Fetch fresh
+            try {
+                const res  = await fetch(REQUESTS_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+                const json = await res.json();
+                const rows = json?.return?.data ?? json?.return ?? json?.data ?? [];
+                if (!Array.isArray(rows)) { requestsLoading = false; return; }
+                requests = rows.map(r => ({
+                    id:          String(r.id),
+                    title:       r.title       || '',
+                    description: r.description || '',
+                    username:    r.username ? (r.username.startsWith('@') ? r.username : '@' + r.username) : '@unknown',
+                    status:      r.status  || 'open',
+                    votes:       Number(r.votes) || 0,
+                }));
+                try { localStorage.setItem(REQUESTS_CACHE_KEY, JSON.stringify(requests)); } catch(e) {}
+                requestsLoading = false;
+                if (currentView === 'requests') renderRequests();
+            } catch(e) {
+                console.error('[Requests] Failed to load:', e);
+                requestsLoading = false;
+                if (currentView === 'requests') renderRequests();
+            }
+        }
+
+        function getFilteredRequests() {
+            let list = [...requests];
+            if (currentSearch) {
+                const q = currentSearch.toLowerCase();
+                list = list.filter(r =>
+                    r.title.toLowerCase().includes(q) ||
+                    r.description.toLowerCase().includes(q)
+                );
+            }
+            list.sort((a, b) =>
+                (requestVotes[b.id] || b.votes || 0) - (requestVotes[a.id] || a.votes || 0)
+            );
+            return list;
+        }
+
+        function renderRequests() {
+            const board = document.getElementById('requests-board');
+            if (!board) return;
+
+            const list  = getFilteredRequests();
+            const total = requests.length;
+            const sessionVote = getSessionRequestVote();
+
+            const skeletonCard = `
+                <div class="skeleton-card" style="padding:22px;display:flex;flex-direction:column;gap:14px;">
+                    <div style="display:flex;justify-content:space-between;gap:12px;">
+                        <div class="skeleton-block" style="height:18px;width:60%;"></div>
+                        <div class="skeleton-block" style="height:28px;width:52px;border-radius:8px;"></div>
+                    </div>
+                    <div class="skeleton-block" style="height:13px;width:35%;"></div>
+                    <div class="skeleton-block" style="height:13px;width:88%;"></div>
+                    <div class="skeleton-block" style="height:13px;width:72%;"></div>
+                </div>`;
+
+            const cards = requestsLoading
+                ? skeletonCard.repeat(4)
+                : list.length === 0
+                    ? `<div class="empty-state" style="grid-column:1/-1;">No requests yet — be the first to submit one!</div>`
+                    : list.map(r => {
+                        const vCount   = requestVotes[r.id] !== undefined ? requestVotes[r.id] : (r.votes || 0);
+                        const voted    = sessionVote === r.id;
+                        const initials = r.username.replace('@','').slice(0,2).toUpperCase();
+                        const statusLabel = { open: 'Open', claimed: 'Claimed', fulfilled: 'Fulfilled' }[r.status] || 'Open';
+                        return `
+                            <div class="request-card">
+                                <div class="request-card-top">
+                                    <div class="request-card-title">${esc(r.title)}</div>
+                                    <button class="request-vote-btn${voted ? ' voted' : ''}"
+                                            onclick="castRequestVote(event,'${r.id}')"
+                                            ${voted ? 'disabled' : ''}>
+                                        ${voted ? '★' : '☆'} ${vCount}
+                                    </button>
+                                </div>
+                                <div class="request-card-author">
+                                    <div class="request-author-avatar" style="${_authorStyle(r.username.replace('@',''))}">${initials}</div>
+                                    <span>${esc(r.username)}</span>
+                                    <span class="request-status ${r.status}">${statusLabel}</span>
+                                </div>
+                                <p class="request-card-desc">${esc(r.description)}</p>
+                            </div>`;
+                    }).join('');
+
+            board.innerHTML = `
+                <div class="request-board-header">
+                    <span class="request-board-meta">
+                        ${requestsLoading ? 'Loading…' : `${total} request${total !== 1 ? 's' : ''} · sorted by votes`}
+                    </span>
+                    <button class="request-submit-btn" onclick="openRequestModal()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        Submit a Request
+                    </button>
+                </div>
+                <div class="request-grid">${cards}</div>`;
+        }
+
+        function castRequestVote(event, id) {
+            event.stopPropagation();
+            const prev = getSessionRequestVote();
+            if (prev === id) return;
+            if (prev) requestVotes[prev] = Math.max(0, (requestVotes[prev] || 0) - 1);
+            requestVotes[id] = (requestVotes[id] || 0) + 1;
+            saveRequestVotes();
+            sessionStorage.setItem('retoolRequestSessionVote', id);
+            renderRequests();
+            showToast(prev ? 'Vote switched!' : 'Your vote has been cast!');
+        }
+
+        function openRequestModal() {
+            document.getElementById('requestOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRequestModal() {
+            document.getElementById('requestOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+            // Reset form
+            ['rq-title','rq-username','rq-desc'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            ['rq-err-title','rq-err-username','rq-err-desc'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        }
+
+        async function submitRequest() {
+            const title    = document.getElementById('rq-title').value.trim();
+            const username = document.getElementById('rq-username').value.trim();
+            const desc     = document.getElementById('rq-desc').value.trim();
+
+            let valid = true;
+            const setErr = (id, show) => {
+                document.getElementById(id).style.display = show ? '' : 'none';
+                if (show) valid = false;
+            };
+            setErr('rq-err-title',    !title);
+            setErr('rq-err-username', !username);
+            setErr('rq-err-desc',     !desc);
+            if (!valid) return;
+
+            if (!SUBMIT_REQUEST_WEBHOOK) {
+                // Optimistic local add for testing until webhook is wired
+                requests.unshift({
+                    id:          'local-' + Date.now(),
+                    title,
+                    description: desc,
+                    username:    username.startsWith('@') ? username : '@' + username,
+                    status:      'open',
+                    votes:       0,
+                });
+                closeRequestModal();
+                renderRequests();
+                showToast('Request submitted!');
+                return;
+            }
+
+            const btn  = document.getElementById('rq-submit-btn');
+            const orig = btn.textContent;
+            btn.disabled    = true;
+            btn.textContent = 'Submitting…';
+
+            try {
+                const res = await fetch(SUBMIT_REQUEST_WEBHOOK, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ title, username, description: desc }),
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                requests.unshift({
+                    id:          'local-' + Date.now(),
+                    title,
+                    description: desc,
+                    username:    username.startsWith('@') ? username : '@' + username,
+                    status:      'open',
+                    votes:       0,
+                });
+                closeRequestModal();
+                renderRequests();
+                showToast('Request submitted! Thanks for the idea.');
+            } catch(e) {
+                btn.disabled    = false;
+                btn.textContent = orig;
+                showToast('Something went wrong — please try again.');
+            }
+        }
+
         // ===== Init =====
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -1915,6 +2331,12 @@
             buildSubmitModal();
             initEditMode();
             loadGalleryFromDB();
+            loadRequestsFromDB();
+
+            // View tab switching
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                tab.addEventListener('click', function() { switchView(this.dataset.view); });
+            });
 
             // Search
             document.querySelector('.search-box input').addEventListener('input', function () {
@@ -1942,6 +2364,7 @@
                 if (e.key === 'Escape') {
                     closeModal();
                     closeSubmitModal();
+                    closeRequestModal();
                 }
             });
         });
@@ -2913,6 +3336,17 @@
             <p class="header-sub">Ranked by community votes &mdash; one vote per session</p>
         </div>
 
+        <div class="view-tabs">
+            <button class="view-tab active" data-view="gallery">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                Components
+            </button>
+            <button class="view-tab" data-view="requests">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+                Request Board
+            </button>
+        </div>
+
         <div class="filters">
             <div class="tag-filter">
                 <button class="tag-button active">All Components</button>
@@ -2926,6 +3360,7 @@
         </div>
 
         <div id="gallery" class="gallery"></div>
+        <div id="requests-board" style="display:none;"></div>
     </div>
 
     <!-- Component Detail Modal -->
@@ -2988,6 +3423,40 @@
 
     <!-- Submission Form Modal -->
     <div class="submit-overlay" id="submitOverlay"></div>
+
+    <!-- Request Submit Modal -->
+    <div class="request-overlay" id="requestOverlay">
+        <div class="request-modal">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div>
+                    <div class="request-modal-title">Request a Component</div>
+                    <div class="request-modal-sub">Tell the community what you need built</div>
+                </div>
+                <button class="modal-close" onclick="closeRequestModal()" style="margin-top:-4px;">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">What component do you need? <span class="req">*</span></label>
+                <input class="form-input" id="rq-title" type="text" maxlength="80" placeholder="e.g. Kanban board with swimlanes and WIP limits">
+                <div class="field-error-msg" id="rq-err-title" style="display:none;">Please enter a title for your request.</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Your Retool Community username <span class="req">*</span></label>
+                <input class="form-input" id="rq-username" type="text" placeholder="yourCommunityHandle">
+                <div class="field-error-msg" id="rq-err-username" style="display:none;">Please enter your community username.</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Describe your use case <span class="req">*</span></label>
+                <textarea class="form-input" id="rq-desc" rows="4" maxlength="500"
+                    placeholder="What should this component do? Why do you need it? Any specific requirements?"
+                    style="resize:vertical;min-height:100px;"></textarea>
+                <div class="field-error-msg" id="rq-err-desc" style="display:none;">Please describe what you need.</div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px;">
+                <button class="modal-btn secondary" onclick="closeRequestModal()">Cancel</button>
+                <button class="modal-btn primary" id="rq-submit-btn" onclick="submitRequest()">Submit Request</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Feedback Notification Popup -->
     <div class="feedback-notif-overlay" id="feedbackNotifOverlay">
