@@ -673,6 +673,55 @@
             align-items: center;
             gap: 5px;
         }
+        .request-section { margin-bottom: 40px; }
+        .request-section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            font-size: 0.82em;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #6B7280;
+        }
+        .request-section-label::before {
+            content: '';
+            flex: 0 0 20px;
+            height: 1px;
+            background: rgba(156,191,231,0.15);
+        }
+        .request-section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(156,191,231,0.15);
+        }
+        .request-section-count {
+            background: rgba(156,191,231,0.1);
+            border: 1px solid rgba(156,191,231,0.15);
+            border-radius: 20px;
+            padding: 1px 8px;
+            font-size: 0.9em;
+            color: #9CBFE7;
+        }
+        .request-days-chip {
+            font-size: 0.75em;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+        .request-days-chip.urgent   { background: rgba(239,68,68,0.12);  color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+        .request-days-chip.warning  { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+        .request-days-chip.ok       { background: rgba(46,201,138,0.1);  color: #2EC98A; border: 1px solid rgba(46,201,138,0.2); }
+        .request-built-by {
+            font-size: 0.8em;
+            color: #9B72CF;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
         /* ===== Request Submit Modal ===== */
         .request-overlay {
@@ -2181,9 +2230,12 @@
                     title:       r.title       || '',
                     description: r.description || '',
                     username:    r.username ? (r.username.startsWith('@') ? r.username : '@' + r.username) : '@unknown',
-                    status:      r.status     || 'open',
-                    votes:       Number(r.votes) || 0,
-                    claimedBy:   r.claimed_by  || null,
+                    status:           r.status          || 'open',
+                    votes:            Number(r.votes)   || 0,
+                    claimedBy:        r.claimed_by      || null,
+                    claimedAt:        r.claimed_at      || null,
+                    componentId:      r.component_id    || null,
+                    expiredClaimers:  Array.isArray(r.expired_claimers) ? r.expired_claimers : [],
                 }));
                 try { localStorage.setItem(REQUESTS_CACHE_KEY, JSON.stringify(requests)); } catch(e) {}
                 requestsLoading = false;
@@ -2210,12 +2262,79 @@
             return list;
         }
 
+        function daysRemaining(claimedAt) {
+            if (!claimedAt) return 30;
+            const elapsed = (Date.now() - new Date(claimedAt).getTime()) / 86400000;
+            return Math.max(0, Math.ceil(30 - elapsed));
+        }
+
+        function makeRequestCard(r, sessionVote) {
+            const vCount   = requestVotes[r.id] !== undefined ? requestVotes[r.id] : (r.votes || 0);
+            const voted    = sessionVote === r.id;
+            const initials = r.username.replace('@','').slice(0,2).toUpperCase();
+            const statusLabel = { open: 'Open', claimed: 'In Progress', fulfilled: 'Completed' }[r.status] || 'Open';
+
+            let footer = '';
+            if (r.status === 'open') {
+                footer = `<button class="request-claim-btn" onclick="openClaimModal('${r.id}')">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.81 6-4.72 7.28L13 17v5h5l-1.22-1.22C19.91 19.07 22 15.76 22 12c0-5.18-3.95-9.45-9-9.95zM11 2.05C5.95 2.55 2 6.82 2 12c0 3.76 2.09 7.07 5.22 8.78L6 22h5v-5l-2.28 2.28C7.81 18 6 15.21 6 12c0-4.08 3.05-7.44 7-7.93V2.05z"/></svg>
+                              Claim this
+                          </button>`;
+            } else if (r.status === 'claimed' && r.claimedBy) {
+                const days = daysRemaining(r.claimedAt);
+                const chipClass = days <= 7 ? 'urgent' : days <= 14 ? 'warning' : 'ok';
+                footer = `
+                    <span class="request-claimed-by">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        ${esc(r.claimedBy)}
+                    </span>
+                    <span class="request-days-chip ${chipClass}">${days}d left</span>`;
+            } else if (r.status === 'fulfilled' && r.claimedBy) {
+                footer = `<span class="request-built-by">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                              Built by ${esc(r.claimedBy)}
+                          </span>`;
+            }
+
+            return `
+                <div class="request-card">
+                    <div class="request-card-top">
+                        <div class="request-card-title">${esc(r.title)}</div>
+                        <button class="request-vote-btn${voted ? ' voted' : ''}"
+                                onclick="castRequestVote(event,'${r.id}')"
+                                ${voted ? 'disabled' : ''}>
+                            ${voted ? '★' : '☆'} ${vCount}
+                        </button>
+                    </div>
+                    <div class="request-card-author">
+                        <div class="request-author-avatar" style="${_authorStyle(r.username.replace('@',''))}">${initials}</div>
+                        <span>${esc(r.username)}</span>
+                        <span class="request-status ${r.status}">${statusLabel}</span>
+                    </div>
+                    <p class="request-card-desc">${esc(r.description)}</p>
+                    ${footer ? `<div class="request-card-footer">${footer}</div>` : ''}
+                </div>`;
+        }
+
+        function makeSection(label, count, cards, emptyMsg) {
+            return `
+                <div class="request-section">
+                    <div class="request-section-label">
+                        ${label}
+                        <span class="request-section-count">${count}</span>
+                    </div>
+                    <div class="request-grid">
+                        ${cards || `<div class="empty-state" style="grid-column:1/-1;padding:28px 20px;">${emptyMsg}</div>`}
+                    </div>
+                </div>`;
+        }
+
         function renderRequests() {
             const board = document.getElementById('requests-board');
             if (!board) return;
 
-            const list  = getFilteredRequests();
-            const total = requests.length;
+            const list        = getFilteredRequests();
+            const total       = requests.length;
             const sessionVote = getSessionRequestVote();
 
             const skeletonCard = `
@@ -2229,57 +2348,38 @@
                     <div class="skeleton-block" style="height:13px;width:72%;"></div>
                 </div>`;
 
-            const cards = requestsLoading
-                ? skeletonCard.repeat(4)
-                : list.length === 0
-                    ? `<div class="empty-state" style="grid-column:1/-1;">No requests yet — be the first to submit one!</div>`
-                    : list.map(r => {
-                        const vCount   = requestVotes[r.id] !== undefined ? requestVotes[r.id] : (r.votes || 0);
-                        const voted    = sessionVote === r.id;
-                        const initials = r.username.replace('@','').slice(0,2).toUpperCase();
-                        const statusLabel = { open: 'Open', claimed: 'Claimed', fulfilled: 'Fulfilled' }[r.status] || 'Open';
-                        const footer = r.status === 'open'
-                            ? `<button class="request-claim-btn" onclick="openClaimModal('${r.id}')">
-                                   <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.81 6-4.72 7.28L13 17v5h5l-1.22-1.22C19.91 19.07 22 15.76 22 12c0-5.18-3.95-9.45-9-9.95zM11 2.05C5.95 2.55 2 6.82 2 12c0 3.76 2.09 7.07 5.22 8.78L6 22h5v-5l-2.28 2.28C7.81 18 6 15.21 6 12c0-4.08 3.05-7.44 7-7.93V2.05z"/></svg>
-                                   Claim this
-                               </button>`
-                            : r.status === 'claimed' && r.claimedBy
-                                ? `<span class="request-claimed-by">
-                                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                                       Claimed by ${esc(r.claimedBy)}
-                                   </span>`
-                                : '';
-                        return `
-                            <div class="request-card">
-                                <div class="request-card-top">
-                                    <div class="request-card-title">${esc(r.title)}</div>
-                                    <button class="request-vote-btn${voted ? ' voted' : ''}"
-                                            onclick="castRequestVote(event,'${r.id}')"
-                                            ${voted ? 'disabled' : ''}>
-                                        ${voted ? '★' : '☆'} ${vCount}
-                                    </button>
-                                </div>
-                                <div class="request-card-author">
-                                    <div class="request-author-avatar" style="${_authorStyle(r.username.replace('@',''))}">${initials}</div>
-                                    <span>${esc(r.username)}</span>
-                                    <span class="request-status ${r.status}">${statusLabel}</span>
-                                </div>
-                                <p class="request-card-desc">${esc(r.description)}</p>
-                                ${footer ? `<div class="request-card-footer">${footer}</div>` : ''}
-                            </div>`;
-                    }).join('');
-
-            board.innerHTML = `
+            const header = `
                 <div class="request-board-header">
                     <span class="request-board-meta">
-                        ${requestsLoading ? 'Loading…' : `${total} request${total !== 1 ? 's' : ''} · sorted by votes`}
+                        ${requestsLoading ? 'Loading…' : `${total} request${total !== 1 ? 's' : ''}`}
                     </span>
                     <button class="request-submit-btn" onclick="openRequestModal()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                         Submit a Request
                     </button>
-                </div>
-                <div class="request-grid">${cards}</div>`;
+                </div>`;
+
+            if (requestsLoading) {
+                board.innerHTML = header + `<div class="request-grid">${skeletonCard.repeat(4)}</div>`;
+                return;
+            }
+
+            const open       = list.filter(r => r.status === 'open');
+            const inProgress = list.filter(r => r.status === 'claimed');
+            const completed  = list.filter(r => r.status === 'fulfilled');
+
+            board.innerHTML = header
+                + makeSection('Open Requests', open.length,
+                    open.map(r => makeRequestCard(r, sessionVote)).join(''),
+                    'No open requests yet — be the first to submit one!')
+                + (inProgress.length > 0
+                    ? makeSection('In Progress', inProgress.length,
+                        inProgress.map(r => makeRequestCard(r, sessionVote)).join(''), '')
+                    : '')
+                + (completed.length > 0
+                    ? makeSection('Completed', completed.length,
+                        completed.map(r => makeRequestCard(r, sessionVote)).join(''), '')
+                    : '');
         }
 
         function castRequestVote(event, id) {
@@ -2380,8 +2480,8 @@
 
         function openClaimModal(id) {
             claimingRequestId = id;
-            document.getElementById('claim-username').value = '';
-            document.getElementById('claim-err-username').style.display = 'none';
+            ['claim-username','claim-email'].forEach(i => { const el = document.getElementById(i); if (el) el.value = ''; });
+            ['claim-err-username','claim-err-email'].forEach(i => { const el = document.getElementById(i); if (el) el.style.display = 'none'; });
             const req = requests.find(r => r.id === id);
             if (req) document.getElementById('claim-request-title').textContent = req.title;
             document.getElementById('claimOverlay').classList.add('active');
@@ -2396,26 +2496,32 @@
 
         async function submitClaim() {
             const username = document.getElementById('claim-username').value.trim();
-            if (!username) {
-                document.getElementById('claim-err-username').style.display = '';
-                return;
-            }
-            document.getElementById('claim-err-username').style.display = 'none';
+            const email    = document.getElementById('claim-email').value.trim();
+
+            let valid = true;
+            const setErr = (id, show) => { document.getElementById(id).style.display = show ? '' : 'none'; if (show) valid = false; };
+            setErr('claim-err-username', !username);
+            setErr('claim-err-email',    !email || !email.includes('@'));
+            if (!valid) return;
 
             const btn  = document.getElementById('claim-submit-btn');
             const orig = btn.textContent;
             btn.disabled    = true;
             btn.textContent = 'Claiming…';
 
-            const handle = username.startsWith('@') ? username : '@' + username;
+            const handle   = username.startsWith('@') ? username : '@' + username;
+            const claimedAt = new Date().toISOString();
+
+            const optimisticUpdate = () => {
+                const req = requests.find(r => r.id === claimingRequestId);
+                if (req) { req.status = 'claimed'; req.claimedBy = handle; req.claimedAt = claimedAt; }
+            };
 
             if (!CLAIM_REQUEST_WEBHOOK) {
-                // Optimistic update for testing
-                const req = requests.find(r => r.id === claimingRequestId);
-                if (req) { req.status = 'claimed'; req.claimedBy = handle; }
+                optimisticUpdate();
                 closeClaimModal();
                 renderRequests();
-                showToast('Request claimed! Go build it.');
+                showToast('Request claimed! Check your email for next steps.');
                 return;
             }
 
@@ -2423,14 +2529,13 @@
                 const res = await fetch(CLAIM_REQUEST_WEBHOOK, {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ request_id: claimingRequestId, username: handle }),
+                    body:    JSON.stringify({ request_id: claimingRequestId, username: handle, email }),
                 });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
-                const req = requests.find(r => r.id === claimingRequestId);
-                if (req) { req.status = 'claimed'; req.claimedBy = handle; }
+                optimisticUpdate();
                 closeClaimModal();
                 renderRequests();
-                showToast('Request claimed! Go build it.');
+                showToast('Request claimed! Check your email for next steps.');
             } catch(e) {
                 btn.disabled    = false;
                 btn.textContent = orig;
@@ -3592,8 +3697,14 @@
                 <input class="form-input" id="claim-username" type="text" placeholder="yourCommunityHandle">
                 <div class="field-error-msg" id="claim-err-username" style="display:none;">Please enter your community username.</div>
             </div>
-            <div style="font-size:0.8em;color:#6B7280;margin-bottom:20px;line-height:1.5;">
-                By claiming this request you're committing to submit the component. If no component is submitted within 30 days the request automatically reopens for others.
+            <div class="form-group">
+                <label class="form-label">Your email <span class="req">*</span></label>
+                <input class="form-input" id="claim-email" type="email" placeholder="you@example.com">
+                <div class="field-hint" style="font-size:0.82em;color:#6B7280;margin-top:4px;">We'll send you a reminder with instructions on how to submit your component.</div>
+                <div class="field-error-msg" id="claim-err-email" style="display:none;">Please enter a valid email address.</div>
+            </div>
+            <div style="font-size:0.8em;color:#6B7280;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:10px 14px;margin-bottom:20px;line-height:1.55;">
+                By claiming this you're committing to submit the component within <strong style="color:#f59e0b;">30 days</strong>. If nothing is submitted by then, the request reopens for others and you won't be able to reclaim it.
             </div>
             <div style="display:flex;justify-content:flex-end;gap:10px;">
                 <button class="modal-btn secondary" onclick="closeClaimModal()">Cancel</button>
