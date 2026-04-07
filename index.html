@@ -1668,15 +1668,19 @@
         // ===== Render =====
 
         function _authorStyle(username) {
-            const palettes = [
-                ['#9B72CF','#8B7EFF'],['#8B7EFF','#EC4899'],['#2563eb','#10b981'],
-                ['#9B72CF','#2EC98A'],['#34d399','#3b82f6'],['#f59e0b','#ef4444'],
-                ['#6BBAFF','#8B7EFF'],['#2EC98A','#6BBAFF']
-            ];
+            // Hash the username into a stable 32-bit integer
             let h = 0;
-            for (const c of (username || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
-            const [a, b] = palettes[h % palettes.length];
-            return `background: linear-gradient(135deg, ${a} 0%, ${b} 100%);`;
+            for (const c of (username || '')) h = Math.imul(h * 31 + c.charCodeAt(0), 1) | 0;
+            h = ((h >>> 0) * 2654435761) >>> 0; // Knuth multiplicative hash — spreads bits evenly
+
+            // Derive two hues that are always 120–180° apart so the gradient never looks muddy
+            const hue1 =  h % 360;
+            const hue2 = (hue1 + 120 + (h >> 8) % 60) % 360;
+            // Keep saturation and lightness in a range that looks good on dark backgrounds
+            const s = 65 + (h >> 16) % 20;          // 65–85%
+            const l1 = 55 + (h >> 20) % 15;         // 55–70%
+            const l2 = 50 + ((h >> 24) & 0xf) % 15; // 50–65%
+            return `background: linear-gradient(135deg, hsl(${hue1},${s}%,${l1}%) 0%, hsl(${hue2},${s}%,${l2}%) 100%);`;
         }
 
         const GALLERY_CACHE_KEY = 'retool_gallery_cache';
