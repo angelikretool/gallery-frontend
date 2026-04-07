@@ -1679,48 +1679,8 @@
             return `background: linear-gradient(135deg, ${a} 0%, ${b} 100%);`;
         }
 
-        const GALLERY_CACHE_KEY = 'retool_gallery_cache';
-
-        function rowToComponent(row) {
-            const handle = row.username
-                ? (row.username.startsWith('@') ? row.username : '@' + row.username)
-                : '@unknown';
-            return {
-                id:               String(row.id),
-                title:            row.project_name || '',
-                author:           handle,
-                authorInitials:   handle.replace('@','').slice(0,2).toUpperCase(),
-                authorStyle:      _authorStyle(row.username || ''),
-                image:            row.cover_image || '',
-                shortDescription: row.about || '',
-                fullDescription:  row.about || '',
-                repoLink:         row.component_url || row.pr_link || '',
-                videoUrl:         row.video_url || '',
-                howItWorks:       row.how_it_works || '',
-                buildProcess:     row.build_process || '',
-                tags:             row.tags
-                    ? row.tags.split(',').map(t => ({ name: t.trim() })).filter(t => t.name)
-                    : []
-            };
-        }
-
         async function loadGalleryFromDB() {
             if (!GALLERY_WEBHOOK) return;
-
-            // Serve cache immediately so returning visitors see content at once
-            try {
-                const cached = localStorage.getItem(GALLERY_CACHE_KEY);
-                if (cached) {
-                    const cachedRows = JSON.parse(cached);
-                    cachedRows.forEach(comp => {
-                        if (!components.some(c => c.id === comp.id)) components.push(comp);
-                    });
-                    galleryLoading = false;
-                    renderGallery();
-                }
-            } catch(e) { /* ignore bad cache */ }
-
-            // Fetch fresh data in background
             try {
                 const res = await fetch(GALLERY_WEBHOOK, {
                     method: 'POST',
@@ -1730,11 +1690,29 @@
                 const json = await res.json();
                 const rows = json?.return?.data ?? json?.return ?? json?.data ?? [];
                 if (!Array.isArray(rows)) return;
-                const fresh = rows.map(rowToComponent);
-                // Replace components array with fresh data
-                components.length = 0;
-                fresh.forEach(c => components.push(c));
-                try { localStorage.setItem(GALLERY_CACHE_KEY, JSON.stringify(fresh)); } catch(e) {}
+                rows.forEach(row => {
+                    if (components.some(c => c.id === String(row.id))) return;
+                    const handle = row.username
+                        ? (row.username.startsWith('@') ? row.username : '@' + row.username)
+                        : '@unknown';
+                    components.push({
+                        id:               String(row.id),
+                        title:            row.project_name || '',
+                        author:           handle,
+                        authorInitials:   handle.replace('@','').slice(0,2).toUpperCase(),
+                        authorStyle:      _authorStyle(row.username || ''),
+                        image:            row.cover_image || '',
+                        shortDescription: row.about || '',
+                        fullDescription:  row.about || '',
+                        repoLink:         row.component_url || row.pr_link || '',
+                        videoUrl:         row.video_url || '',
+                        howItWorks:       row.how_it_works || '',
+                        buildProcess:     row.build_process || '',
+                        tags:             row.tags
+                            ? row.tags.split(',').map(t => ({ name: t.trim() })).filter(t => t.name)
+                            : []
+                    });
+                });
                 galleryLoading = false;
                 renderGallery();
             } catch(e) {
