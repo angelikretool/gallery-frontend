@@ -460,6 +460,33 @@
             font-size: 1em;
         }
 
+        /* Skeleton loading cards */
+        @keyframes skeleton-shimmer {
+            0%   { background-position: -600px 0; }
+            100% { background-position: 600px 0; }
+        }
+        .skeleton-card {
+            background: #1E1E1E;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(156,191,231,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        .skeleton-block {
+            background: linear-gradient(90deg, #252525 25%, #303030 50%, #252525 75%);
+            background-size: 600px 100%;
+            animation: skeleton-shimmer 1.4s infinite linear;
+            border-radius: 6px;
+        }
+        .skeleton-media  { width: 100%; height: 240px; border-radius: 0; }
+        .skeleton-content { padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+        .skeleton-title  { height: 18px; width: 65%; }
+        .skeleton-author { height: 14px; width: 40%; }
+        .skeleton-desc   { height: 13px; width: 90%; }
+        .skeleton-desc2  { height: 13px; width: 75%; }
+        .skeleton-tag    { height: 22px; width: 70px; display: inline-block; border-radius: 20px; }
+
         /* ===== Modal Styles ===== */
 
         .modal-overlay {
@@ -1531,6 +1558,7 @@
         // ===== Component Data =====
 
         const components = [];
+        let galleryLoading = true;
 
         // ===== Champions =====
         // Add or remove author handles here to manage champion status
@@ -1685,9 +1713,12 @@
                             : []
                     });
                 });
+                galleryLoading = false;
                 renderGallery();
             } catch(e) {
                 console.error('[Gallery] Failed to load submissions:', e);
+                galleryLoading = false;
+                renderGallery();
             }
         }
 
@@ -1703,7 +1734,22 @@
             const gallery = document.getElementById('gallery');
 
             if (list.length === 0) {
-                gallery.innerHTML = '<div class="empty-state">No components match your search.</div>';
+                if (galleryLoading) {
+                    const skeletonCard = `
+                        <div class="skeleton-card">
+                            <div class="skeleton-block skeleton-media"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton-block skeleton-title"></div>
+                                <div class="skeleton-block skeleton-author"></div>
+                                <div class="skeleton-block skeleton-desc"></div>
+                                <div class="skeleton-block skeleton-desc2"></div>
+                                <div class="skeleton-block skeleton-tag"></div>
+                            </div>
+                        </div>`;
+                    gallery.innerHTML = skeletonCard.repeat(6);
+                } else {
+                    gallery.innerHTML = '<div class="empty-state">No components match your search.</div>';
+                }
                 return;
             }
 
