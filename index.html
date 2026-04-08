@@ -2566,16 +2566,27 @@
             const desc     = document.getElementById('rq-desc').value.trim();
 
             let valid = true;
-            const setErr = (id, show) => {
-                document.getElementById(id).style.display = show ? '' : 'none';
+            const rqU = document.getElementById('rq-username');
+            const usernameInvalid = rqU.dataset.verified !== 'true';
+
+            const setErr = (id, show, msg) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (msg) el.textContent = msg;
+                el.style.display = show ? '' : 'none';
                 if (show) valid = false;
             };
-            const rqU = document.getElementById('rq-username');
-            setErr('rq-err-title',    !title);
-            setErr('rq-err-username', rqU.dataset.verified !== 'true');
-            if (rqU.dataset.verified !== 'true') document.getElementById('rq-err-username').textContent = 'Please select a username from the Retool Community dropdown.';
-            setErr('rq-err-desc',     !desc);
-            if (!valid) return;
+
+            setErr('rq-err-title',    !title,           'Please enter a title for your request.');
+            setErr('rq-err-username', usernameInvalid,  'Please select your username from the Retool Community dropdown.');
+            setErr('rq-err-desc',     !desc,            'Please describe what you need.');
+
+            if (!valid) {
+                // Scroll the first visible error into view
+                const firstErr = document.querySelector('#requestOverlay .field-error-msg[style=""]');
+                if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
 
             if (!SUBMIT_REQUEST_WEBHOOK) {
                 // Optimistic local add for testing until webhook is wired
