@@ -1531,6 +1531,20 @@
         .tag-pick-btn:hover { border-color: #9CBFE7; color: #9CBFE7; }
         .tag-pick-btn.selected { background: #9CBFE7; color: #151515; border-color: #9CBFE7; font-weight: 700; }
         .tag-picker.field-error .tag-pick-btn:not(.selected) { border-color: rgba(239, 68, 68, 0.5); }
+        .tag-pick-btn.tag-more-btn { border-style: dashed; color: #6B7280; border-color: #374151; }
+        .tag-pick-btn.tag-more-btn:hover { border-color: #9CBFE7; color: #9CBFE7; }
+        .tag-custom-input {
+            background: transparent;
+            border: 1px dashed #9CBFE7;
+            border-radius: 20px;
+            color: #F1F5F9;
+            font-family: inherit;
+            font-size: 0.85em;
+            outline: none;
+            padding: 5px 14px;
+            width: 130px;
+        }
+        .tag-custom-input::placeholder { color: #4B5563; }
 
         .field-error-msg {
             color: #EF4444;
@@ -2628,7 +2642,9 @@
         function buildSubmitModal() {
             const tagsHtml = SUBMIT_TAGS.map(tag =>
                 `<button type="button" class="tag-pick-btn" onclick="toggleSubmitTag(this, '${tag}')">${tag}</button>`
-            ).join('');
+            ).join('') + `<button type="button" class="tag-pick-btn tag-more-btn" id="tag-more-btn" onclick="showCustomTagInput()">+ More</button>
+             <input type="text" class="tag-custom-input" id="tag-custom-input" placeholder="Type & press Enter" style="display:none;"
+                    onkeydown="handleCustomTagKey(event)" onblur="hideCustomTagInput()">`;
 
             document.getElementById('submitOverlay').innerHTML = `
             <div class="submit-modal" id="submitModal">
@@ -2798,6 +2814,38 @@
             } else {
                 selectedTags = selectedTags.filter(t => t !== tag);
             }
+        }
+
+        function showCustomTagInput() {
+            document.getElementById('tag-more-btn').style.display   = 'none';
+            const input = document.getElementById('tag-custom-input');
+            input.style.display = '';
+            input.value = '';
+            input.focus();
+        }
+
+        function hideCustomTagInput() {
+            document.getElementById('tag-custom-input').style.display = 'none';
+            document.getElementById('tag-more-btn').style.display     = '';
+        }
+
+        function handleCustomTagKey(e) {
+            if (e.key === 'Escape') { hideCustomTagInput(); return; }
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            const val = e.target.value.trim();
+            if (!val || selectedTags.includes(val)) { hideCustomTagInput(); return; }
+            // Add as a selected pill into the picker
+            const picker = document.getElementById('sf-tag-picker');
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'tag-pick-btn selected';
+            btn.textContent = val;
+            btn.onclick = () => toggleSubmitTag(btn, val);
+            // Insert before the More button
+            picker.insertBefore(btn, document.getElementById('tag-more-btn'));
+            selectedTags.push(val);
+            hideCustomTagInput();
         }
 
         function handleDragOver(e) {
