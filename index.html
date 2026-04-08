@@ -2503,21 +2503,24 @@
             } else if (r.status === 'claimed' && r.claimedBy) {
                 const days = daysRemaining(r.claimedAt);
                 const chipClass = days <= 7 ? 'urgent' : days <= 14 ? 'warning' : 'ok';
+                const claimedHandle = r.claimedBy ? r.claimedBy.replace('@','') : '';
                 footer = `
                     <span class="request-claimed-by">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                        ${esc(r.claimedBy)}
+                        <a class="card-author-link" href="${DISCOURSE_URL}/u/${encodeURIComponent(claimedHandle)}" target="_blank" onclick="event.stopPropagation()">${esc(r.claimedBy)}</a>
                     </span>
                     <span class="request-days-chip ${chipClass}">${days}d left</span>`;
             } else if (r.status === 'fulfilled') {
+                const claimedHandle = r.claimedBy ? r.claimedBy.replace('@','') : '';
                 footer = `
                     ${r.claimedBy ? `<span class="request-built-by">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-                        Built by ${esc(r.claimedBy)}
+                        Built by <a class="card-author-link" href="${DISCOURSE_URL}/u/${encodeURIComponent(claimedHandle)}" target="_blank" onclick="event.stopPropagation()">${esc(r.claimedBy)}</a>
                     </span>` : ''}
                     ${r.componentId ? `<a class="request-view-link" href="#component/${r.componentId}" onclick="event.preventDefault();openModal('${r.componentId}')">View Component →</a>` : ''}`;
             }
 
+            const requesterHandle = r.username.replace('@','');
             return `
                 <div class="request-card">
                     <div class="request-card-top">
@@ -2529,8 +2532,8 @@
                         </button>
                     </div>
                     <div class="request-card-author">
-                        <div class="request-author-avatar" style="${_authorStyle(r.username.replace('@',''))}">${initials}</div>
-                        <span>${esc(r.username)}</span>
+                        <div class="request-author-avatar" style="${_authorStyle(requesterHandle)}">${initials}</div>
+                        <a class="card-author-link" href="${DISCOURSE_URL}/u/${encodeURIComponent(requesterHandle)}" target="_blank" onclick="event.stopPropagation()">${esc(r.username)}</a>
                         <span class="request-status ${r.status}">${statusLabel}</span>
                     </div>
                     <p class="request-card-desc">${esc(r.description)}</p>
