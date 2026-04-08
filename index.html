@@ -2290,7 +2290,8 @@
             const modalChampionBadge = champions.has(comp.author)
                 ? ` <span class="champion-badge">&#9733; Community Champion</span>`
                 : '';
-            document.getElementById('modalAuthorName').innerHTML = comp.author + modalChampionBadge;
+            const profileUrl = `${DISCOURSE_URL}/u/${encodeURIComponent(comp.author.replace('@',''))}`;
+            document.getElementById('modalAuthorName').innerHTML = `<a href="${profileUrl}" target="_blank" rel="noopener" class="card-author-link" style="font-weight:inherit;">${comp.author}</a>` + modalChampionBadge;
             document.getElementById('modalPreview').src = comp.image;
             document.getElementById('modalDescription').textContent = comp.fullDescription;
             const _rb = _repoBtnContent(comp.repoLink);
