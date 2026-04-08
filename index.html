@@ -2455,7 +2455,7 @@
                     claimedBy:        r.claimed_by      || null,
                     claimedAt:        r.claimed_at      || null,
                     componentId:      r.component_id    || null,
-                    expiredClaimers:  Array.isArray(r.expired_claimers) ? r.expired_claimers : [],
+                    expiredClaimers:  r.expired_claimers ? (Array.isArray(r.expired_claimers) ? r.expired_claimers : r.expired_claimers.split(',').filter(Boolean)) : [],
                 }));
                 try { localStorage.setItem(REQUESTS_CACHE_KEY, JSON.stringify(requests)); } catch(e) {}
                 requestsLoading = false;
