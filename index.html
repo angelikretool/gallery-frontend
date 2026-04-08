@@ -3161,7 +3161,7 @@
             );
             if (!pool.length) { results.style.display = 'none'; return; }
             results.innerHTML = pool.slice(0, 8).map(r =>
-                `<div class="request-link-option" onclick="selectLinkedRequest('${r.id}', ${JSON.stringify(esc(r.title))})">
+                `<div class="request-link-option" onclick="selectLinkedRequest('${r.id}', ${JSON.stringify(r.title)})">
                     <span class="request-status ${r.status}" style="font-size:0.75rem;">${r.status === 'claimed' ? 'In Progress' : 'Open'}</span>
                     ${esc(r.title)}
                 </div>`
