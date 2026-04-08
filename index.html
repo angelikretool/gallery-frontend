@@ -2642,9 +2642,10 @@
         function buildSubmitModal() {
             const tagsHtml = SUBMIT_TAGS.map(tag =>
                 `<button type="button" class="tag-pick-btn" onclick="toggleSubmitTag(this, '${tag}')">${tag}</button>`
-            ).join('') + `<button type="button" class="tag-pick-btn tag-more-btn" id="tag-more-btn" onclick="showCustomTagInput()">+ More</button>
-             <input type="text" class="tag-custom-input" id="tag-custom-input" placeholder="Type & press Enter" style="display:none;"
-                    onkeydown="handleCustomTagKey(event)" onblur="hideCustomTagInput()">`;
+            ).join('')
+            + `<button type="button" class="tag-pick-btn tag-more-btn" id="tag-more-btn" onclick="showCustomTagInput()">+ More</button>`
+            + `<input type="text" class="tag-custom-input" id="tag-custom-input" placeholder="Type &amp; press Enter" style="display:none;" onkeydown="handleCustomTagKey(event)" onblur="hideCustomTagInput()">`;
+
 
             document.getElementById('submitOverlay').innerHTML = `
             <div class="submit-modal" id="submitModal">
