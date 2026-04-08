@@ -2731,6 +2731,12 @@
             // Reset button state
             const btn = document.getElementById('claim-submit-btn');
             if (btn) { btn.disabled = false; btn.textContent = 'Claim Request'; }
+            // Pre-fill email from session
+            try {
+                const sEmail = sessionStorage.getItem('retool_ac_email');
+                const emailEl = document.getElementById('claim-email');
+                if (sEmail && emailEl && !emailEl.value) emailEl.value = sEmail;
+            } catch(e) {}
             document.getElementById('claimOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -2763,6 +2769,7 @@
 
             const handle   = username.startsWith('@') ? username : '@' + username;
             const claimedAt = new Date().toISOString();
+            try { sessionStorage.setItem('retool_ac_email', email); } catch(e) {}
 
             const optimisticUpdate = () => {
                 const req = requests.find(r => r.id === claimingRequestId);
@@ -2875,6 +2882,8 @@
             function selectOption(user) {
                 closeDropdown();
                 showPillMode(user);
+                // Save to session so other forms pre-fill automatically
+                try { sessionStorage.setItem('retool_ac_user', JSON.stringify(user)); } catch(e) {}
             }
 
             function renderOptions(users) {
@@ -2946,6 +2955,12 @@
 
             // Expose reset for form clear (called on modal close)
             input._acReset = () => { input.dataset.verified = ''; showInputMode(); closeDropdown(); };
+
+            // Auto-restore from session if user already selected their username this session
+            try {
+                const saved = sessionStorage.getItem('retool_ac_user');
+                if (saved) showPillMode(JSON.parse(saved));
+            } catch(e) {}
         }
 
         // ===== Init =====
@@ -3381,6 +3396,14 @@
             initWed('sf-how');
             initWed('sf-process');
             initUsernameAutocomplete('sf-username');
+
+            // Restore name & email from session
+            try {
+                const sName  = sessionStorage.getItem('retool_ac_name');
+                const sEmail = sessionStorage.getItem('retool_ac_email');
+                if (sName  && !document.getElementById('sf-name').value)  document.getElementById('sf-name').value  = sName;
+                if (sEmail && !document.getElementById('sf-email').value) document.getElementById('sf-email').value = sEmail;
+            } catch(e) {}
         }
 
         function toggleSubmitTag(btn, tag) {
@@ -4115,6 +4138,11 @@
 
             const sfUEl    = document.getElementById('sf-username');
             const sfAvatar = sfUEl?.dataset?.avatarUrl || '';
+            // Save name & email to session for future forms
+            try {
+                sessionStorage.setItem('retool_ac_name',  document.getElementById('sf-name').value.trim());
+                sessionStorage.setItem('retool_ac_email', document.getElementById('sf-email').value.trim());
+            } catch(e) {}
             const payload = {
                 edit_token:    token,
                 name:          document.getElementById('sf-name').value.trim(),
