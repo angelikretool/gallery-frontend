@@ -2802,12 +2802,21 @@
             }
 
             try {
-                const res = await fetch(CLAIM_REQUEST_WEBHOOK, {
+                const res  = await fetch(CLAIM_REQUEST_WEBHOOK, {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body:    JSON.stringify({ request_id: claimingRequestId, username: handle, email }),
                 });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const json = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    const msg = json?.workflowError || 'Something went wrong — please try again.';
+                    const errEl = document.getElementById('claim-err-email');
+                    errEl.textContent = msg;
+                    errEl.style.display = '';
+                    btn.disabled    = false;
+                    btn.textContent = orig;
+                    return;
+                }
                 optimisticUpdate();
                 closeClaimModal();
                 renderRequests();
