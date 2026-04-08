@@ -1576,6 +1576,44 @@
         }
         .username-option-name { color: #E5E7EB; font-size: 0.88em; font-weight: 600; }
         .username-option-full { color: #6B7280; font-size: 0.78em; margin-top: 1px; }
+        .username-selected-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(156,191,231,0.07);
+            border: 1px solid rgba(156,191,231,0.2);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .username-selected-pill:hover {
+            background: rgba(156,191,231,0.12);
+            border-color: rgba(156,191,231,0.4);
+        }
+        .username-selected-pill img {
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+        .username-selected-pill-avatar-fallback {
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            font-weight: 700;
+            color: #fff;
+        }
+        .username-selected-info { flex: 1; min-width: 0; }
+        .username-selected-name { font-size: 0.88em; font-weight: 600; color: #E5E7EB; }
+        .username-selected-handle { font-size: 0.78em; color: #6B7280; margin-top: 1px; }
+        .username-selected-change { font-size: 0.75em; color: #6B7280; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+        .username-selected-change svg { flex-shrink: 0; }
 
         .field-error-msg {
             color: #EF4444;
@@ -2469,8 +2507,10 @@
                 document.getElementById(id).style.display = show ? '' : 'none';
                 if (show) valid = false;
             };
+            const rqU = document.getElementById('rq-username');
             setErr('rq-err-title',    !title);
-            setErr('rq-err-username', !username);
+            setErr('rq-err-username', rqU.dataset.verified !== 'true');
+            if (rqU.dataset.verified !== 'true') document.getElementById('rq-err-username').textContent = 'Please select a username from the Retool Community dropdown.';
             setErr('rq-err-desc',     !desc);
             if (!valid) return;
 
@@ -2546,7 +2586,9 @@
 
             let valid = true;
             const setErr = (id, show) => { document.getElementById(id).style.display = show ? '' : 'none'; if (show) valid = false; };
-            setErr('claim-err-username', !username);
+            const claimU = document.getElementById('claim-username');
+            setErr('claim-err-username', claimU.dataset.verified !== 'true');
+            if (claimU.dataset.verified !== 'true') document.getElementById('claim-err-username').textContent = 'Please select a username from the Retool Community dropdown.';
             setErr('claim-err-email',    !email || !email.includes('@'));
             if (!valid) return;
 
@@ -2595,24 +2637,31 @@
         const DISCOURSE_PROXY = 'https://api.retool.com/v1/workflows/e4cba2de-21c6-43e7-9738-995aa0876d9b/startTrigger?workflowApiKey=retool_wk_784ea38f87cb4bff8825aa89e53bb729';
         let _acTimers = {};
 
-        function initUsernameAutocomplete(inputId) {
+        function initUsernameAutocomplete(inputId, opts = {}) {
             const input = document.getElementById(inputId);
             if (!input) return;
 
-            // Attach dropdown to body so modal overflow doesn't clip it
+            // Insert a pill container right after the input (or its wrapper)
+            const anchor = input.closest('.input-prefix-wrap') || input;
+            const pill = document.createElement('div');
+            pill.style.display = 'none';
+            anchor.parentNode.insertBefore(pill, anchor.nextSibling);
+
+            // Dropdown attached to body so modal overflow doesn't clip it
             const dropdown = document.createElement('div');
             dropdown.className = 'username-dropdown';
             dropdown.style.display = 'none';
             document.body.appendChild(dropdown);
 
+            let activeIdx = -1;
+            let selectedUser = null;
+
             function positionDropdown() {
-                const r = input.getBoundingClientRect();
+                const r = (anchor).getBoundingClientRect();
                 dropdown.style.top   = (r.bottom + 4) + 'px';
                 dropdown.style.left  = r.left + 'px';
                 dropdown.style.width = r.width + 'px';
             }
-
-            let activeIdx = -1;
 
             function closeDropdown() {
                 dropdown.style.display = 'none';
@@ -2620,9 +2669,45 @@
                 activeIdx = -1;
             }
 
-            function selectOption(username) {
-                input.value = username;
+            function showInputMode() {
+                anchor.style.display = '';
+                pill.style.display = 'none';
+                input.value = '';
+                input.dataset.verified = '';
+                input.focus();
+                selectedUser = null;
+            }
+
+            function showPillMode(user) {
+                selectedUser = user;
+                input.value = user.username;
+                input.dataset.verified = 'true';
+                anchor.style.display = 'none';
+                const avatarUrl = user.avatar_template
+                    ? DISCOURSE_URL + user.avatar_template.replace('{size}', '64')
+                    : '';
+                const initials = user.username.slice(0,2).toUpperCase();
+                const avatarHtml = avatarUrl
+                    ? `<img src="${avatarUrl}" alt="">`
+                    : `<div class="username-selected-pill-avatar-fallback" style="${_authorStyle(user.username)}">${initials}</div>`;
+                pill.className = 'username-selected-pill';
+                pill.innerHTML = `
+                    ${avatarHtml}
+                    <div class="username-selected-info">
+                        <div class="username-selected-name">${user.name ? esc(user.name) : '@' + esc(user.username)}</div>
+                        <div class="username-selected-handle">@${esc(user.username)}</div>
+                    </div>
+                    <div class="username-selected-change">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        Change
+                    </div>`;
+                pill.style.display = 'flex';
+                pill.onclick = showInputMode;
+            }
+
+            function selectOption(user) {
                 closeDropdown();
+                showPillMode(user);
             }
 
             function renderOptions(users) {
@@ -2633,7 +2718,7 @@
                     const avatar = u.avatar_template
                         ? DISCOURSE_URL + u.avatar_template.replace('{size}', '40')
                         : '';
-                    return `<div class="username-option" data-username="${esc(u.username)}" data-idx="${i}">
+                    return `<div class="username-option" data-idx="${i}">
                         ${avatar ? `<img src="${avatar}" alt="">` : ''}
                         <div>
                             <div class="username-option-name">@${esc(u.username)}</div>
@@ -2642,10 +2727,10 @@
                     </div>`;
                 }).join('');
                 dropdown.style.display = '';
-                dropdown.querySelectorAll('.username-option').forEach(el => {
+                dropdown.querySelectorAll('.username-option').forEach((el, i) => {
                     el.addEventListener('mousedown', e => {
                         e.preventDefault();
-                        selectOption(el.dataset.username);
+                        selectOption(users[i]);
                     });
                 });
             }
@@ -2656,19 +2741,16 @@
                 if (q.length < 2) { closeDropdown(); return; }
                 _acTimers[inputId] = setTimeout(async () => {
                     try {
-                        let users = [];
-                        if (DISCOURSE_PROXY) {
-                            const res = await fetch(DISCOURSE_PROXY, {
-                                method:  'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body:    JSON.stringify({ query: q })
-                            });
-                            const json = await res.json();
-                            const items = json?.return?.directory_items ?? json?.directory_items ?? [];
-                            users = items.map(i => i.user).filter(Boolean);
-                        }
-                        renderOptions(users);
-                    } catch(e) { console.error('[Autocomplete] error:', e); }
+                        if (!DISCOURSE_PROXY) return;
+                        const res = await fetch(DISCOURSE_PROXY, {
+                            method:  'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body:    JSON.stringify({ query: q })
+                        });
+                        const json = await res.json();
+                        const items = json?.return?.directory_items ?? json?.directory_items ?? [];
+                        renderOptions(items.map(i => i.user).filter(Boolean));
+                    } catch(e) {}
                 }, 220);
             });
 
@@ -2683,7 +2765,8 @@
                     activeIdx = Math.max(activeIdx - 1, 0);
                 } else if (e.key === 'Enter' && activeIdx >= 0) {
                     e.preventDefault();
-                    selectOption(opts[activeIdx].dataset.username);
+                    const items = dropdown._users;
+                    if (items && items[activeIdx]) selectOption(items[activeIdx]);
                     return;
                 } else if (e.key === 'Escape') {
                     closeDropdown(); return;
@@ -2693,6 +2776,9 @@
             });
 
             input.addEventListener('blur', () => setTimeout(closeDropdown, 150));
+
+            // Expose reset for form clear (called on modal close)
+            input._acReset = () => { input.dataset.verified = ''; showInputMode(); closeDropdown(); };
         }
 
         // ===== Init =====
@@ -2705,6 +2791,7 @@
             loadRequestsFromDB();
             initUsernameAutocomplete('rq-username');
             initUsernameAutocomplete('claim-username');
+            initUsernameAutocomplete('sf-username');
 
             // View tab switching
             document.querySelectorAll('.view-tab').forEach(tab => {
@@ -2776,6 +2863,8 @@
         function closeSubmitModal() {
             document.getElementById('submitOverlay').classList.remove('active');
             document.body.style.overflow = 'auto';
+            const sfU = document.getElementById('sf-username');
+            if (sfU?._acReset) sfU._acReset();
         }
 
         function buildSubmitModal() {
@@ -3365,7 +3454,9 @@
             }
 
             check('sf-name',    'err-name',    document.getElementById('sf-name').value.trim());
-            check('wrap-username', 'err-username', document.getElementById('sf-username').value.trim());
+            const sfU = document.getElementById('sf-username');
+            check('wrap-username', 'err-username', sfU.dataset.verified === 'true');
+            if (sfU.dataset.verified !== 'true') document.getElementById('err-username').textContent = 'Please select a username from the Retool Community dropdown.';
             const emailVal = document.getElementById('sf-email').value.trim();
             check('sf-email', 'err-email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal));
             check('sf-project', 'err-project', document.getElementById('sf-project').value.trim());
@@ -3849,7 +3940,7 @@
                 <div class="field-error-msg" id="rq-err-title" style="display:none;">Please enter a title for your request.</div>
             </div>
             <div class="form-group">
-                <label class="form-label">Your Retool Community username <span class="req">*</span></label>
+                <label class="form-label">Community Username <span class="req">*</span></label>
                 <input class="form-input" id="rq-username" type="text" placeholder="yourCommunityHandle">
                 <div class="field-error-msg" id="rq-err-username" style="display:none;">Please enter your community username.</div>
             </div>
@@ -3882,7 +3973,7 @@
                 <div id="claim-request-title" style="font-size:0.92em;font-weight:600;color:#E5E7EB;"></div>
             </div>
             <div class="form-group">
-                <label class="form-label">Your Retool Community username <span class="req">*</span></label>
+                <label class="form-label">Community Username <span class="req">*</span></label>
                 <input class="form-input" id="claim-username" type="text" placeholder="yourCommunityHandle">
                 <div class="field-error-msg" id="claim-err-username" style="display:none;">Please enter your community username.</div>
             </div>
