@@ -2622,10 +2622,12 @@
             btn.textContent = 'Submitting…';
 
             try {
+                const payload = { title, username, description: desc };
+                console.log('[SubmitRequest] sending payload:', JSON.stringify(payload, null, 2));
                 const res  = await fetch(SUBMIT_REQUEST_WEBHOOK, {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ title, username, description: desc }),
+                    body:    JSON.stringify(payload),
                 });
                 const text = await res.text();
                 console.log('[SubmitRequest] status:', res.status, 'body:', text);
