@@ -1549,14 +1549,12 @@
         /* Community username autocomplete */
         .username-wrap { position: relative; }
         .username-dropdown {
-            position: absolute;
-            top: calc(100% + 4px);
-            left: 0; right: 0;
+            position: fixed;
             background: #1E1E1E;
             border: 1px solid rgba(156,191,231,0.25);
             border-radius: 10px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            z-index: 200;
+            z-index: 9999;
             overflow: hidden;
             max-height: 220px;
             overflow-y: auto;
@@ -2601,16 +2599,18 @@
             const input = document.getElementById(inputId);
             if (!input) return;
 
-            // Wrap in relative container
-            const wrap = document.createElement('div');
-            wrap.className = 'username-wrap';
-            input.parentNode.insertBefore(wrap, input);
-            wrap.appendChild(input);
-
+            // Attach dropdown to body so modal overflow doesn't clip it
             const dropdown = document.createElement('div');
             dropdown.className = 'username-dropdown';
             dropdown.style.display = 'none';
-            wrap.appendChild(dropdown);
+            document.body.appendChild(dropdown);
+
+            function positionDropdown() {
+                const r = input.getBoundingClientRect();
+                dropdown.style.top   = (r.bottom + 4) + 'px';
+                dropdown.style.left  = r.left + 'px';
+                dropdown.style.width = r.width + 'px';
+            }
 
             let activeIdx = -1;
 
@@ -2628,6 +2628,7 @@
             function renderOptions(users) {
                 if (!users.length) { closeDropdown(); return; }
                 activeIdx = -1;
+                positionDropdown();
                 dropdown.innerHTML = users.map((u, i) => {
                     const avatar = u.avatar_template
                         ? DISCOURSE_URL + u.avatar_template.replace('{size}', '40')
