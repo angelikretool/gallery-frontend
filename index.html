@@ -2272,7 +2272,7 @@
 
         // ===== Modal =====
 
-        function openModal(componentId) {
+        function openModal(componentId, skipPush) {
             const comp = components.find(c => c.id === componentId);
             if (!comp) return;
 
@@ -2318,11 +2318,16 @@
 
             document.getElementById('componentModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            if (!skipPush) {
+                history.pushState(null, '', '#component/' + encodeURIComponent(componentId));
+            }
         }
 
         function closeModal() {
             document.getElementById('componentModal').classList.remove('active');
             document.body.style.overflow = 'auto';
+            const hash = currentView === 'requests' ? '#request-board' : currentSearch ? '#search/' + encodeURIComponent(currentSearch) : '';
+            history.replaceState(null, '', hash || location.pathname + location.search);
         }
 
         // ===== Request Board State =====
@@ -2340,7 +2345,7 @@
             return sessionStorage.getItem('retoolRequestSessionVote');
         }
 
-        function switchView(view) {
+        function switchView(view, skipPush) {
             currentView = view;
             document.querySelectorAll('.view-tab').forEach(t =>
                 t.classList.toggle('active', t.dataset.view === view)
@@ -2350,6 +2355,9 @@
             document.getElementById('requests-board').style.display = isGallery ? 'none' : '';
             document.querySelector('.filters').style.display        = isGallery ? '' : 'none';
             if (!isGallery) renderRequests();
+            if (!skipPush) {
+                history.pushState(null, '', isGallery ? location.pathname + location.search : '#request-board');
+            }
         }
 
         async function loadRequestsFromDB() {
@@ -2541,14 +2549,18 @@
             showToast(prev ? 'Vote switched!' : 'Your vote has been cast!');
         }
 
-        function openRequestModal() {
+        function openRequestModal(skipPush) {
             document.getElementById('requestOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
+            if (!skipPush) {
+                history.pushState(null, '', '#new-request');
+            }
         }
 
         function closeRequestModal() {
             document.getElementById('requestOverlay').classList.remove('active');
             document.body.style.overflow = '';
+            history.replaceState(null, '', '#request-board');
             // Reset form
             ['rq-title','rq-username','rq-desc'].forEach(id => {
                 const el = document.getElementById(id);
@@ -2863,6 +2875,41 @@
 
         // ===== Init =====
 
+        // ===== Hash-based URL Routing =====
+
+        function restoreFromHash() {
+            const hash = location.hash;
+            if (!hash || hash === '#') return;
+
+            if (hash === '#request-board') {
+                switchView('requests', true);
+            } else if (hash === '#new-request') {
+                switchView('requests', true);
+                openRequestModal(true);
+            } else if (hash === '#submit') {
+                openSubmitModal(true);
+            } else if (hash.startsWith('#component/')) {
+                const id = decodeURIComponent(hash.slice('#component/'.length));
+                // Wait for components to be available (may still be loading)
+                const tryOpen = () => {
+                    if (components.length > 0) {
+                        openModal(id, true);
+                    } else {
+                        setTimeout(tryOpen, 200);
+                    }
+                };
+                tryOpen();
+            } else if (hash.startsWith('#search/')) {
+                const q = decodeURIComponent(hash.slice('#search/'.length));
+                currentSearch = q;
+                const searchInput = document.querySelector('.search-box input');
+                if (searchInput) searchInput.value = q;
+                renderGallery();
+            }
+        }
+
+        window.addEventListener('hashchange', restoreFromHash);
+
         document.addEventListener('DOMContentLoaded', function () {
             renderGallery();
             buildSubmitModal();
@@ -2871,6 +2918,7 @@
             loadRequestsFromDB();
             initUsernameAutocomplete('rq-username');
             initUsernameAutocomplete('claim-username');
+            restoreFromHash();
 
             // View tab switching
             document.querySelectorAll('.view-tab').forEach(tab => {
@@ -2881,6 +2929,8 @@
             document.querySelector('.search-box input').addEventListener('input', function () {
                 currentSearch = this.value;
                 renderGallery();
+                const q = currentSearch.trim();
+                history.replaceState(null, '', q ? '#search/' + encodeURIComponent(q) : location.pathname + location.search);
             });
 
             // Tag filters
@@ -2929,7 +2979,7 @@
                 .replace(/"/g, '&quot;');
         }
 
-        function openSubmitModal() {
+        function openSubmitModal(skipPush) {
             editMode  = false;
             editToken = null;
             buildSubmitModal();
@@ -2937,11 +2987,16 @@
             uploadedFiles = [];
             document.getElementById('submitOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
+            if (!skipPush) {
+                history.pushState(null, '', '#submit');
+            }
         }
 
         function closeSubmitModal() {
             document.getElementById('submitOverlay').classList.remove('active');
             document.body.style.overflow = 'auto';
+            const hash = currentView === 'requests' ? '#request-board' : currentSearch ? '#search/' + encodeURIComponent(currentSearch) : '';
+            history.replaceState(null, '', hash || location.pathname + location.search);
             const sfU = document.getElementById('sf-username');
             if (sfU?._acReset) sfU._acReset();
         }
