@@ -213,6 +213,16 @@
             align-items: center;
             gap: 6px;
         }
+        .card-author-link {
+            color: #CBD5E1;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .card-author-link:hover {
+            color: #9CBFE7;
+            border-bottom-color: #9CBFE7;
+        }
 
         .author-avatar {
             width: 20px;
@@ -2219,7 +2229,7 @@
                                 <h3 class="card-title">${comp.title}</h3>
                                 <div class="card-author">
                                     ${getAvatarHtml(comp, 'author-avatar', comp.authorStyle)}
-                                    <span>${comp.author}</span>
+                                    <a class="card-author-link" href="${DISCOURSE_URL}/u/${encodeURIComponent(comp.author.replace('@',''))}" onclick="event.stopPropagation();" target="_blank" rel="noopener">${comp.author}</a>
                                     ${championBadge}
                                 </div>
                             </div>
