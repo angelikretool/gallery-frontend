@@ -2764,12 +2764,14 @@
 
             // One active claim per user
             const handle0 = username.replace('@','').toLowerCase();
+            console.log('[Claim] checking handle:', handle0, 'requests:', requests.map(r => ({ id: r.id, status: r.status, claimedBy: r.claimedBy })));
             const existing = requests.find(r =>
                 r.status === 'claimed' &&
                 r.claimedBy &&
                 r.claimedBy.replace('@','').toLowerCase() === handle0 &&
-                r.id !== claimingRequestId
+                String(r.id) !== String(claimingRequestId)
             );
+            console.log('[Claim] existing:', existing);
             if (existing) {
                 const errEl = document.getElementById('claim-err-username');
                 errEl.textContent = `You already have an active claim on "${existing.title}". Free it up before claiming another.`;
