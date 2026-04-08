@@ -2664,9 +2664,8 @@
                                 body:    JSON.stringify({ query: q })
                             });
                             const json = await res.json();
-                            console.log('[Autocomplete] status:', res.status, 'response:', json);
-                            users = json?.return?.users ?? json?.return?.data?.users ?? json?.users ?? [];
-                            console.log('[Autocomplete] users:', users);
+                            const items = json?.return?.directory_items ?? json?.directory_items ?? [];
+                            users = items.map(i => i.user).filter(Boolean);
                         }
                         renderOptions(users);
                     } catch(e) { console.error('[Autocomplete] error:', e); }
