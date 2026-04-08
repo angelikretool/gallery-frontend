@@ -2384,15 +2384,15 @@
             document.getElementById('componentModal').classList.add('active');
             document.body.style.overflow = 'hidden';
             if (!skipPush) {
-                history.pushState(null, '', '#component/' + encodeURIComponent(componentId));
+                history.pushState(null, '', '?component=' + encodeURIComponent(componentId));
             }
         }
 
         function closeModal() {
             document.getElementById('componentModal').classList.remove('active');
             document.body.style.overflow = 'auto';
-            const hash = currentView === 'requests' ? '#request-board' : currentSearch ? '#search/' + encodeURIComponent(currentSearch) : '';
-            history.replaceState(null, '', hash || location.pathname + location.search);
+            const qs = currentView === 'requests' ? '?view=requests' : currentSearch ? '?search=' + encodeURIComponent(currentSearch) : '';
+            history.replaceState(null, '', qs || location.pathname);
         }
 
         // ===== Request Board State =====
@@ -2421,7 +2421,7 @@
             document.querySelector('.filters').style.display        = isGallery ? '' : 'none';
             if (!isGallery) renderRequests();
             if (!skipPush) {
-                history.pushState(null, '', isGallery ? location.pathname + location.search : '#request-board');
+                history.pushState(null, '', isGallery ? location.pathname : '?view=requests');
             }
         }
 
@@ -2517,7 +2517,7 @@
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
                         Built by <a class="card-author-link" href="${DISCOURSE_URL}/u/${encodeURIComponent(claimedHandle)}" target="_blank" onclick="event.stopPropagation()">${esc(r.claimedBy)}</a>
                     </span>` : ''}
-                    ${r.componentId ? `<a class="request-view-link" href="#component/${r.componentId}" onclick="event.preventDefault();openModal('${r.componentId}')">View Component →</a>` : ''}`;
+                    ${r.componentId ? `<a class="request-view-link" href="?component=${r.componentId}" onclick="event.preventDefault();openModal('${r.componentId}')">View Component →</a>` : ''}`;
             }
 
             const requesterHandle = r.username.replace('@','');
@@ -2623,14 +2623,14 @@
             document.getElementById('requestOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
             if (!skipPush) {
-                history.pushState(null, '', '#new-request');
+                history.pushState(null, '', '?view=requests&modal=new-request');
             }
         }
 
         function closeRequestModal() {
             document.getElementById('requestOverlay').classList.remove('active');
             document.body.style.overflow = '';
-            history.replaceState(null, '', '#request-board');
+            history.replaceState(null, '', '?view=requests');
             // Reset form
             ['rq-title','rq-username','rq-desc'].forEach(id => {
                 const el = document.getElementById(id);
@@ -3048,43 +3048,40 @@
 
         // ===== Hash-based URL Routing =====
 
-        function restoreFromHash() {
-            const hash = location.hash;
-            if (!hash || hash === '#') return;
+        function restoreFromUrl() {
+            const params = new URLSearchParams(location.search);
+            const view      = params.get('view');
+            const component = params.get('component');
+            const modal     = params.get('modal');
+            const search    = params.get('search');
+            const release   = params.get('release');
+            const title     = params.get('title');
 
-            if (hash === '#request-board') {
+            if (release) {
+                openReleaseOverlay(release, title || '');
+            } else if (view === 'requests') {
                 switchView('requests', true);
-            } else if (hash === '#new-request') {
-                switchView('requests', true);
-                openRequestModal(true);
-            } else if (hash === '#submit') {
+                if (modal === 'new-request') openRequestModal(true);
+            } else if (modal === 'submit') {
                 openSubmitModal(true);
-            } else if (hash.startsWith('#component/')) {
-                const id = decodeURIComponent(hash.slice('#component/'.length));
-                // Wait for components to be available (may still be loading)
+            } else if (component) {
                 const tryOpen = () => {
                     if (components.length > 0) {
-                        openModal(id, true);
+                        openModal(component, true);
                     } else {
                         setTimeout(tryOpen, 200);
                     }
                 };
                 tryOpen();
-            } else if (hash.startsWith('#search/')) {
-                const q = decodeURIComponent(hash.slice('#search/'.length));
-                currentSearch = q;
+            } else if (search) {
+                currentSearch = search;
                 const searchInput = document.querySelector('.search-box input');
-                if (searchInput) searchInput.value = q;
+                if (searchInput) searchInput.value = search;
                 renderGallery();
-            } else if (hash.startsWith('#release/')) {
-                const parts = hash.slice('#release/'.length).split('/').filter(Boolean);
-                const token = decodeURIComponent(parts[0] || '');
-                const title = parts.slice(1).length ? decodeURIComponent(parts.slice(1).join('/')) : '';
-                openReleaseOverlay(token, title);
             }
         }
 
-        window.addEventListener('hashchange', restoreFromHash);
+        window.addEventListener('popstate', restoreFromUrl);
 
         document.addEventListener('DOMContentLoaded', function () {
             renderGallery();
@@ -3094,7 +3091,7 @@
             loadRequestsFromDB();
             initUsernameAutocomplete('rq-username');
             initUsernameAutocomplete('claim-username');
-            restoreFromHash();
+            restoreFromUrl();
 
             // View tab switching
             document.querySelectorAll('.view-tab').forEach(tab => {
@@ -3106,7 +3103,7 @@
                 currentSearch = this.value;
                 renderGallery();
                 const q = currentSearch.trim();
-                history.replaceState(null, '', q ? '#search/' + encodeURIComponent(q) : location.pathname + location.search);
+                history.replaceState(null, '', q ? '?search=' + encodeURIComponent(q) : location.pathname);
             });
 
             // Tag filters
@@ -3230,15 +3227,15 @@
             document.getElementById('submitOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
             if (!skipPush) {
-                history.pushState(null, '', '#submit');
+                history.pushState(null, '', '?modal=submit');
             }
         }
 
         function closeSubmitModal() {
             document.getElementById('submitOverlay').classList.remove('active');
             document.body.style.overflow = 'auto';
-            const hash = currentView === 'requests' ? '#request-board' : currentSearch ? '#search/' + encodeURIComponent(currentSearch) : '';
-            history.replaceState(null, '', hash || location.pathname + location.search);
+            const qs = currentView === 'requests' ? '?view=requests' : currentSearch ? '?search=' + encodeURIComponent(currentSearch) : '';
+            history.replaceState(null, '', qs || location.pathname);
             const sfU = document.getElementById('sf-username');
             if (sfU?._acReset) sfU._acReset();
         }
