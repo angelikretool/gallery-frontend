@@ -2952,11 +2952,17 @@
 
         // ===== Release Claim =====
 
-        function openReleaseOverlay(token) {
+        function openReleaseOverlay(token, title) {
             const overlay = document.getElementById('releaseOverlay');
             overlay.dataset.token = token;
+            // Show title if available
+            const titleEl = overlay.querySelector('#release-request-title');
+            if (titleEl) {
+                titleEl.textContent = title || '';
+                titleEl.style.display = title ? '' : 'none';
+            }
             overlay.querySelector('#release-status').style.display = 'none';
-            overlay.querySelector('#release-actions').style.display = '';
+            overlay.querySelector('#release-actions').style.display = 'flex';
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -3032,8 +3038,10 @@
                 if (searchInput) searchInput.value = q;
                 renderGallery();
             } else if (hash.startsWith('#release/')) {
-                const token = decodeURIComponent(hash.slice('#release/'.length));
-                openReleaseOverlay(token);
+                const parts = hash.slice('#release/'.length).split('/');
+                const token = decodeURIComponent(parts[0]);
+                const title = parts[1] ? decodeURIComponent(parts[1]) : '';
+                openReleaseOverlay(token, title);
             }
         }
 
@@ -4340,13 +4348,14 @@
     <div class="request-overlay" id="releaseOverlay">
         <div class="request-modal" style="max-width:480px;text-align:center;">
             <div style="font-size:2.5rem;margin-bottom:12px;">🔓</div>
-            <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:12px;">Free Up This Request?</h2>
-            <p style="color:#9ca3af;font-size:0.95rem;margin-bottom:24px;line-height:1.6;">
+            <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;">Free Up This Request?</h2>
+            <div id="release-request-title" style="display:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 16px;margin:12px 0;font-size:0.95rem;font-weight:600;color:#e5e7eb;"></div>
+            <p style="color:#9ca3af;font-size:0.9rem;margin-bottom:24px;line-height:1.6;">
                 This will release your claim and reopen the request for other community members to build.
                 You won't be able to reclaim this request in the future.
             </p>
             <div id="release-status" style="display:none;margin-bottom:16px;font-weight:600;"></div>
-            <div id="release-actions" style="display:flex;justify-content:center;gap:12px;">
+            <div id="release-actions" style="display:flex;flex-direction:row;justify-content:center;gap:12px;flex-wrap:nowrap;">
                 <button class="modal-btn secondary" onclick="closeReleaseOverlay()">Keep My Claim</button>
                 <button class="modal-btn primary" id="release-confirm-btn" onclick="confirmRelease()" style="background:#ef4444;">Free Up Request</button>
             </div>
