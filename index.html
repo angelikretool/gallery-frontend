@@ -2982,7 +2982,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body:    JSON.stringify({ token }),
                 });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const text = await res.text();
+                console.log('[Release] status:', res.status, 'body:', text);
+                if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + text);
                 overlay.querySelector('#release-actions').style.display = 'none';
                 status.textContent  = 'The request has been freed up and is open for others to claim.';
                 status.style.color  = '#4ade80';
