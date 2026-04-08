@@ -3053,9 +3053,9 @@
                 if (searchInput) searchInput.value = q;
                 renderGallery();
             } else if (hash.startsWith('#release/')) {
-                const parts = hash.slice('#release/'.length).split('/');
-                const token = decodeURIComponent(parts[0]);
-                const title = parts[1] ? decodeURIComponent(parts[1]) : '';
+                const parts = hash.slice('#release/'.length).split('/').filter(Boolean);
+                const token = decodeURIComponent(parts[0] || '');
+                const title = parts.slice(1).length ? decodeURIComponent(parts.slice(1).join('/')) : '';
                 openReleaseOverlay(token, title);
             }
         }
