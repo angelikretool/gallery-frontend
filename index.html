@@ -3300,14 +3300,11 @@
                                 oninput="updateCharCounter('sf-project','sf-project-counter',50)">
                             <div class="char-counter" id="sf-project-counter">0 / 50</div>
                             <div class="field-error-msg" id="err-project">Please enter the project name.</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="is-request-checkbox-row">
+                            <label class="is-request-checkbox-row" style="margin-top:10px;">
                                 <input type="checkbox" id="sf-is-request" onchange="toggleRequestLink(this.checked)">
                                 Is this component fulfilling a community request?
                             </label>
-                            <div id="sf-request-section" style="display:none;">
+                            <div id="sf-request-section" style="display:none;margin-top:8px;">
                                 <div id="sf-request-chip" style="display:none;margin-bottom:8px;"></div>
                                 <input class="form-input" id="sf-request-search" type="text"
                                     placeholder="Search requests by name…"
