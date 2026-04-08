@@ -1930,8 +1930,9 @@
         // Wire these up once you've created the workflows in Retool
         const REQUESTS_WEBHOOK       = 'https://api.retool.com/v1/workflows/9956328f-eb4f-49cd-a142-b91b6d5cd6b8/startTrigger?workflowApiKey=retool_wk_db0990291a6f483bb155179c8d0e29b7';
         const SUBMIT_REQUEST_WEBHOOK = 'https://api.retool.com/v1/workflows/e06bf321-5de9-4547-9ca1-d2975ab5390d/startTrigger?workflowApiKey=retool_wk_444308ea34ef4c9db1b535013daaa3c4';
-        const CLAIM_REQUEST_WEBHOOK  = 'https://api.retool.com/v1/workflows/fd753930-e0b5-4c70-817e-21973ca6deef/startTrigger?workflowApiKey=retool_wk_c80d7a1446f24222959c43b217f933c3';
-        const REQUESTS_CACHE_KEY     = 'retool_requests_cache';
+        const CLAIM_REQUEST_WEBHOOK   = 'https://api.retool.com/v1/workflows/fd753930-e0b5-4c70-817e-21973ca6deef/startTrigger?workflowApiKey=retool_wk_c80d7a1446f24222959c43b217f933c3';
+        const RELEASE_CLAIM_WEBHOOK   = 'https://api.retool.com/v1/workflows/33468da3-098e-45d8-b38c-fe8b553ae8c2/startTrigger?workflowApiKey=retool_wk_71d9f5d1f66d4739b902746f875cce00';
+        const REQUESTS_CACHE_KEY      = 'retool_requests_cache';
 
         // ===== Edit Mode =====
 
@@ -2877,6 +2878,55 @@
 
         // ===== Init =====
 
+        // ===== Release Claim =====
+
+        function openReleaseOverlay(token) {
+            const overlay = document.getElementById('releaseOverlay');
+            overlay.dataset.token = token;
+            overlay.querySelector('#release-status').style.display = 'none';
+            overlay.querySelector('#release-actions').style.display = '';
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReleaseOverlay() {
+            document.getElementById('releaseOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+            history.replaceState(null, '', location.pathname + location.search);
+        }
+
+        async function confirmRelease() {
+            const overlay = document.getElementById('releaseOverlay');
+            const token   = overlay.dataset.token;
+            const btn     = document.getElementById('release-confirm-btn');
+            const status  = document.getElementById('release-status');
+
+            btn.disabled    = true;
+            btn.textContent = 'Freeing up…';
+
+            try {
+                const res = await fetch(RELEASE_CLAIM_WEBHOOK, {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ token }),
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                overlay.querySelector('#release-actions').style.display = 'none';
+                status.textContent  = 'The request has been freed up and is open for others to claim.';
+                status.style.color  = '#4ade80';
+                status.style.display = '';
+                // Clear cache so board reflects change
+                try { localStorage.removeItem(REQUESTS_CACHE_KEY); } catch(e) {}
+                setTimeout(closeReleaseOverlay, 2500);
+            } catch(e) {
+                status.textContent  = 'Something went wrong — please try again.';
+                status.style.color  = '#f87171';
+                status.style.display = '';
+                btn.disabled    = false;
+                btn.textContent = 'Free Up Request';
+            }
+        }
+
         // ===== Hash-based URL Routing =====
 
         function restoreFromHash() {
@@ -2907,6 +2957,9 @@
                 const searchInput = document.querySelector('.search-box input');
                 if (searchInput) searchInput.value = q;
                 renderGallery();
+            } else if (hash.startsWith('#release/')) {
+                const token = decodeURIComponent(hash.slice('#release/'.length));
+                openReleaseOverlay(token);
             }
         }
 
@@ -4129,6 +4182,23 @@
             <div style="display:flex;justify-content:flex-end;gap:10px;">
                 <button class="modal-btn secondary" onclick="closeClaimModal()">Cancel</button>
                 <button class="modal-btn primary" id="claim-submit-btn" onclick="submitClaim()">Claim Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Release Claim Overlay -->
+    <div class="request-overlay" id="releaseOverlay">
+        <div class="request-modal" style="max-width:480px;text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🔓</div>
+            <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:12px;">Free Up This Request?</h2>
+            <p style="color:#9ca3af;font-size:0.95rem;margin-bottom:24px;line-height:1.6;">
+                This will release your claim and reopen the request for other community members to build.
+                You won't be able to reclaim this request in the future.
+            </p>
+            <div id="release-status" style="display:none;margin-bottom:16px;font-weight:600;"></div>
+            <div id="release-actions" style="display:flex;justify-content:center;gap:12px;">
+                <button class="modal-btn secondary" onclick="closeReleaseOverlay()">Keep My Claim</button>
+                <button class="modal-btn primary" id="release-confirm-btn" onclick="confirmRelease()" style="background:#ef4444;">Free Up Request</button>
             </div>
         </div>
     </div>
