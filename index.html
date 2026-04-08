@@ -2762,6 +2762,21 @@
             setErr('claim-err-email',    !email || !email.includes('@'));
             if (!valid) return;
 
+            // One active claim per user
+            const handle0 = username.replace('@','').toLowerCase();
+            const existing = requests.find(r =>
+                r.status === 'claimed' &&
+                r.claimedBy &&
+                r.claimedBy.replace('@','').toLowerCase() === handle0 &&
+                r.id !== claimingRequestId
+            );
+            if (existing) {
+                const errEl = document.getElementById('claim-err-username');
+                errEl.textContent = `You already have an active claim on "${existing.title}". Free it up before claiming another.`;
+                errEl.style.display = '';
+                return;
+            }
+
             const btn  = document.getElementById('claim-submit-btn');
             const orig = btn.textContent;
             btn.disabled    = true;
