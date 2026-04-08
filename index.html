@@ -2728,9 +2728,11 @@
             ['claim-err-username','claim-err-email'].forEach(i => { const el = document.getElementById(i); if (el) el.style.display = 'none'; });
             const req = requests.find(r => r.id === id);
             if (req) document.getElementById('claim-request-title').textContent = req.title;
-            // Reset button state
+            // Reset button state and errors
             const btn = document.getElementById('claim-submit-btn');
             if (btn) { btn.disabled = false; btn.textContent = 'Claim Request'; }
+            const genErr = document.getElementById('claim-general-error');
+            if (genErr) genErr.style.display = 'none';
             // Pre-fill email from session
             try {
                 const sEmail = sessionStorage.getItem('retool_ac_email');
@@ -2773,7 +2775,7 @@
             );
             console.log('[Claim] existing:', existing);
             if (existing) {
-                const errEl = document.getElementById('claim-err-username');
+                const errEl = document.getElementById('claim-general-error');
                 errEl.textContent = `You already have an active claim on "${existing.title}". Free it up before claiming another.`;
                 errEl.style.display = '';
                 return;
@@ -2810,7 +2812,7 @@
                 const json = await res.json().catch(() => ({}));
                 if (!res.ok) {
                     const msg = json?.workflowError || 'Something went wrong — please try again.';
-                    const errEl = document.getElementById('claim-err-email');
+                    const errEl = document.getElementById('claim-general-error');
                     errEl.textContent = msg;
                     errEl.style.display = '';
                     btn.disabled    = false;
@@ -4388,9 +4390,10 @@
                 <div class="field-hint" style="font-size:0.82em;color:#6B7280;margin-top:4px;">We'll send you a reminder with instructions on how to submit your component.</div>
                 <div class="field-error-msg" id="claim-err-email" style="display:none;">Please enter a valid email address.</div>
             </div>
-            <div style="font-size:0.8em;color:#6B7280;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:10px 14px;margin-bottom:20px;line-height:1.55;">
+            <div style="font-size:0.8em;color:#6B7280;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:10px 14px;margin-bottom:16px;line-height:1.55;">
                 By claiming this you're committing to submit the component within <strong style="color:#f59e0b;">30 days</strong>. If nothing is submitted by then, the request reopens for others and you won't be able to reclaim it.
             </div>
+            <div id="claim-general-error" style="display:none;font-size:0.85em;color:#f87171;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:10px 14px;margin-bottom:16px;line-height:1.5;"></div>
             <div style="display:flex;justify-content:flex-end;gap:10px;">
                 <button class="modal-btn secondary" onclick="closeClaimModal()">Cancel</button>
                 <button class="modal-btn primary" id="claim-submit-btn" onclick="submitClaim()">Claim Request</button>
