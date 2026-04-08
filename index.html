@@ -2791,7 +2791,6 @@
             loadRequestsFromDB();
             initUsernameAutocomplete('rq-username');
             initUsernameAutocomplete('claim-username');
-            initUsernameAutocomplete('sf-username');
 
             // View tab switching
             document.querySelectorAll('.view-tab').forEach(tab => {
@@ -3034,6 +3033,7 @@
 
             initWed('sf-how');
             initWed('sf-process');
+            initUsernameAutocomplete('sf-username');
         }
 
         function toggleSubmitTag(btn, tag) {
