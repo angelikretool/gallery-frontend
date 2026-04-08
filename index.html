@@ -734,6 +734,70 @@
             gap: 5px;
         }
 
+        .request-view-link {
+            font-size: 0.8em;
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        .request-view-link:hover { text-decoration: underline; }
+
+        .request-link-search-results {
+            background: #1e1e1e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .request-link-option {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .request-link-option:last-child { border-bottom: none; }
+        .request-link-option:hover { background: rgba(255,255,255,0.05); }
+        .request-link-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(46,201,138,0.1);
+            border: 1px solid rgba(46,201,138,0.3);
+            color: #2EC98A;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .request-link-chip button {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0;
+        }
+        .is-request-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+        .is-request-checkbox-row input[type=checkbox] {
+            accent-color: #3b82f6;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
         /* ===== Request Submit Modal ===== */
         .request-overlay {
             position: fixed;
@@ -2445,11 +2509,13 @@
                         ${esc(r.claimedBy)}
                     </span>
                     <span class="request-days-chip ${chipClass}">${days}d left</span>`;
-            } else if (r.status === 'fulfilled' && r.claimedBy) {
-                footer = `<span class="request-built-by">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-                              Built by ${esc(r.claimedBy)}
-                          </span>`;
+            } else if (r.status === 'fulfilled') {
+                footer = `
+                    ${r.claimedBy ? `<span class="request-built-by">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                        Built by ${esc(r.claimedBy)}
+                    </span>` : ''}
+                    ${r.componentId ? `<a class="request-view-link" href="#component/${r.componentId}" onclick="event.preventDefault();openModal('${r.componentId}')">View Component →</a>` : ''}`;
             }
 
             return `
@@ -2662,6 +2728,9 @@
             ['claim-err-username','claim-err-email'].forEach(i => { const el = document.getElementById(i); if (el) el.style.display = 'none'; });
             const req = requests.find(r => r.id === id);
             if (req) document.getElementById('claim-request-title').textContent = req.title;
+            // Reset button state
+            const btn = document.getElementById('claim-submit-btn');
+            if (btn) { btn.disabled = false; btn.textContent = 'Claim Request'; }
             document.getElementById('claimOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -2670,6 +2739,9 @@
             document.getElementById('claimOverlay').classList.remove('active');
             document.body.style.overflow = '';
             claimingRequestId = null;
+            // Reset button state
+            const btn = document.getElementById('claim-submit-btn');
+            if (btn) { btn.disabled = false; btn.textContent = 'Claim Request'; }
         }
 
         async function submitClaim() {
@@ -3024,6 +3096,65 @@
 
         let selectedTags = [];
         let uploadedFiles = []; // array of { file, dataUrl }
+        let selectedRequestId = null;
+
+        function toggleRequestLink(checked) {
+            const section = document.getElementById('sf-request-section');
+            if (!section) return;
+            section.style.display = checked ? '' : 'none';
+            if (checked) {
+                document.getElementById('sf-request-search').focus();
+                searchRequests('');
+            } else {
+                selectedRequestId = null;
+            }
+        }
+
+        function searchRequests(q) {
+            const results = document.getElementById('sf-request-results');
+            const chip    = document.getElementById('sf-request-chip');
+            if (!results) return;
+            if (selectedRequestId) return; // already selected
+            const pool = requests.filter(r =>
+                (r.status === 'open' || r.status === 'claimed') &&
+                (!q || r.title.toLowerCase().includes(q.toLowerCase()) || r.description.toLowerCase().includes(q.toLowerCase()))
+            );
+            if (!pool.length) { results.style.display = 'none'; return; }
+            results.innerHTML = pool.slice(0, 8).map(r =>
+                `<div class="request-link-option" onclick="selectLinkedRequest('${r.id}', ${JSON.stringify(esc(r.title))})">
+                    <span class="request-status ${r.status}" style="font-size:0.75rem;">${r.status === 'claimed' ? 'In Progress' : 'Open'}</span>
+                    ${esc(r.title)}
+                </div>`
+            ).join('');
+            results.style.display = '';
+        }
+
+        function selectLinkedRequest(id, title) {
+            selectedRequestId = id;
+            const search  = document.getElementById('sf-request-search');
+            const results = document.getElementById('sf-request-results');
+            const chip    = document.getElementById('sf-request-chip');
+            if (search)  search.style.display  = 'none';
+            if (results) results.style.display = 'none';
+            if (chip) {
+                chip.innerHTML = `<div class="request-link-chip">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                    ${title}
+                    <button type="button" onclick="clearLinkedRequest()">×</button>
+                </div>`;
+                chip.style.display = '';
+            }
+        }
+
+        function clearLinkedRequest() {
+            selectedRequestId = null;
+            const search  = document.getElementById('sf-request-search');
+            const results = document.getElementById('sf-request-results');
+            const chip    = document.getElementById('sf-request-chip');
+            if (search)  { search.style.display = ''; search.value = ''; search.focus(); }
+            if (results) results.style.display = 'none';
+            if (chip)    chip.style.display    = 'none';
+        }
 
         // Safely escape user input before inserting into HTML
         function esc(str) {
@@ -3040,6 +3171,7 @@
             buildSubmitModal();
             selectedTags = [];
             uploadedFiles = [];
+            selectedRequestId = null;
             document.getElementById('submitOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
             if (!skipPush) {
@@ -3113,6 +3245,21 @@
                                 oninput="updateCharCounter('sf-project','sf-project-counter',50)">
                             <div class="char-counter" id="sf-project-counter">0 / 50</div>
                             <div class="field-error-msg" id="err-project">Please enter the project name.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="is-request-checkbox-row">
+                                <input type="checkbox" id="sf-is-request" onchange="toggleRequestLink(this.checked)">
+                                Is this component fulfilling a community request?
+                            </label>
+                            <div id="sf-request-section" style="display:none;">
+                                <div id="sf-request-chip" style="display:none;margin-bottom:8px;"></div>
+                                <input class="form-input" id="sf-request-search" type="text"
+                                    placeholder="Search requests by name…"
+                                    oninput="searchRequests(this.value)"
+                                    onfocus="searchRequests(this.value)">
+                                <div class="request-link-search-results" id="sf-request-results" style="display:none;"></div>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -3971,7 +4118,8 @@
                 video_url:     document.getElementById('sf-video').value.trim(),
                 cover_image:   coverImage,
                 tags:          selectedTags.join(', '),
-                avatar_url:    sfAvatar || undefined
+                avatar_url:    sfAvatar || undefined,
+                request_id:    selectedRequestId || undefined
             };
 
             try {
