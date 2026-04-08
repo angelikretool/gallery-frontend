@@ -221,6 +221,7 @@
             background: #9B72CF;
             display: inline-block;
             flex-shrink: 0;
+            object-fit: cover;
         }
 
         .github-link {
@@ -2049,6 +2050,7 @@
                 author:           handle,
                 authorInitials:   handle.replace('@','').slice(0,2).toUpperCase(),
                 authorStyle:      _authorStyle(row.username || ''),
+                avatarUrl:        row.avatar_url || null,
                 image:            row.cover_image || '',
                 shortDescription: row.about || '',
                 fullDescription:  row.about || '',
@@ -2060,6 +2062,46 @@
                     ? row.tags.split(',').map(t => ({ name: t.trim() })).filter(t => t.name)
                     : []
             };
+        }
+
+        // ===== Avatar Cache =====
+        const AVATAR_CACHE_KEY = 'retool_avatar_cache';
+        let avatarCache = {};
+        try { avatarCache = JSON.parse(localStorage.getItem(AVATAR_CACHE_KEY) || '{}'); } catch(e) {}
+
+        async function fetchAvatarsForComponents() {
+            if (!DISCOURSE_PROXY) return;
+            // Collect usernames that aren't cached yet and have no stored avatar_url
+            const needed = [...new Set(
+                components
+                    .filter(c => !c.avatarUrl && !avatarCache[c.author])
+                    .map(c => c.author.replace('@', ''))
+            )];
+            if (!needed.length) return;
+            // Fetch one at a time (Discourse directory only supports single name lookup)
+            await Promise.all(needed.map(async username => {
+                try {
+                    const res  = await fetch(DISCOURSE_PROXY, {
+                        method:  'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body:    JSON.stringify({ query: username })
+                    });
+                    const json = await res.json();
+                    const items = json?.return?.directory_items ?? [];
+                    const user  = items.find(i => i.user?.username?.toLowerCase() === username.toLowerCase())?.user;
+                    if (user?.avatar_template) {
+                        avatarCache['@' + user.username] = DISCOURSE_URL + user.avatar_template.replace('{size}', '40');
+                    }
+                } catch(e) {}
+            }));
+            try { localStorage.setItem(AVATAR_CACHE_KEY, JSON.stringify(avatarCache)); } catch(e) {}
+            renderGallery();
+        }
+
+        function getAvatarHtml(comp, sizeClass, styleAttr) {
+            const url = comp.avatarUrl || avatarCache[comp.author];
+            if (url) return `<img src="${url}" class="${sizeClass}" style="border-radius:50%;object-fit:cover;" alt="">`;
+            return `<span class="${sizeClass}" style="${styleAttr}"></span>`;
         }
 
         async function loadGalleryFromDB() {
@@ -2095,6 +2137,7 @@
                 try { localStorage.setItem(GALLERY_CACHE_KEY, JSON.stringify(fresh)); } catch(e) {}
                 galleryLoading = false;
                 renderGallery();
+                fetchAvatarsForComponents();
             } catch(e) {
                 console.error('[Gallery] Failed to load submissions:', e);
                 galleryLoading = false;
@@ -2175,7 +2218,7 @@
                             <div>
                                 <h3 class="card-title">${comp.title}</h3>
                                 <div class="card-author">
-                                    <span class="author-avatar" style="${comp.authorStyle}"></span>
+                                    ${getAvatarHtml(comp, 'author-avatar', comp.authorStyle)}
                                     <span>${comp.author}</span>
                                     ${championBadge}
                                 </div>
@@ -2224,7 +2267,16 @@
             if (!comp) return;
 
             document.getElementById('modalTitle').textContent = comp.title;
-            document.getElementById('modalAuthorAvatar').textContent = comp.authorInitials;
+            const modalAvatarEl = document.getElementById('modalAuthorAvatar');
+            const avatarUrl = comp.avatarUrl || avatarCache[comp.author];
+            if (avatarUrl) {
+                modalAvatarEl.innerHTML = '';
+                modalAvatarEl.style.background = 'none';
+                modalAvatarEl.innerHTML = `<img src="${avatarUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" alt="">`;
+            } else {
+                modalAvatarEl.textContent = comp.authorInitials;
+                modalAvatarEl.style.background = '';
+            }
             const modalChampionBadge = champions.has(comp.author)
                 ? ` <span class="champion-badge">&#9733; Community Champion</span>`
                 : '';
@@ -2681,7 +2733,10 @@
             function showPillMode(user) {
                 selectedUser = user;
                 input.value = user.username;
-                input.dataset.verified = 'true';
+                input.dataset.verified  = 'true';
+                input.dataset.avatarUrl = user.avatar_template
+                    ? DISCOURSE_URL + user.avatar_template.replace('{size}', '80')
+                    : '';
                 anchor.style.display = 'none';
                 const avatarUrl = user.avatar_template
                     ? DISCOURSE_URL + user.avatar_template.replace('{size}', '64')
@@ -3766,10 +3821,12 @@
                 ? uploadedFiles[0].dataUrl
                 : (editMode ? editData.cover_image : '');
 
+            const sfUEl    = document.getElementById('sf-username');
+            const sfAvatar = sfUEl?.dataset?.avatarUrl || '';
             const payload = {
                 edit_token:    token,
                 name:          document.getElementById('sf-name').value.trim(),
-                username:      document.getElementById('sf-username').value.trim(),
+                username:      sfUEl.value.trim(),
                 email:         document.getElementById('sf-email').value.trim(),
                 project_name:  document.getElementById('sf-project').value.trim(),
                 pr_link:       document.getElementById('sf-repo').value.trim(),
@@ -3778,7 +3835,8 @@
                 build_process: getWedHTML('sf-process'),
                 video_url:     document.getElementById('sf-video').value.trim(),
                 cover_image:   coverImage,
-                tags:          selectedTags.join(', ')
+                tags:          selectedTags.join(', '),
+                avatar_url:    sfAvatar || undefined
             };
 
             try {
