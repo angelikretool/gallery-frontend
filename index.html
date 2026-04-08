@@ -2593,7 +2593,8 @@
 
         // ===== Community Username Autocomplete =====
 
-        const DISCOURSE_URL = 'https://community.retool.com';
+        const DISCOURSE_URL   = 'https://community.retool.com';
+        const DISCOURSE_PROXY = ''; // Retool workflow proxy — fill in once created
         let _acTimers = {};
 
         function initUsernameAutocomplete(inputId) {
@@ -2654,11 +2655,26 @@
                 if (q.length < 2) { closeDropdown(); return; }
                 _acTimers[inputId] = setTimeout(async () => {
                     try {
-                        const res = await fetch(`${DISCOURSE_URL}/u/search/users.json?q=${encodeURIComponent(q)}&include_groups=false`);
-                        if (!res.ok) return;
-                        const json = await res.json();
-                        renderOptions(json.users || []);
-                    } catch(e) { /* CORS or network — silently skip */ }
+                        let users = [];
+                        if (DISCOURSE_PROXY) {
+                            // Route through Retool workflow to avoid CORS
+                            const res = await fetch(DISCOURSE_PROXY, {
+                                method:  'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body:    JSON.stringify({ query: q })
+                            });
+                            if (!res.ok) return;
+                            const json = await res.json();
+                            users = json?.return?.users ?? json?.users ?? [];
+                        } else {
+                            // Direct call — works only if CORS is allowed
+                            const res = await fetch(`${DISCOURSE_URL}/u/search/users.json?q=${encodeURIComponent(q)}&include_groups=false`);
+                            if (!res.ok) return;
+                            const json = await res.json();
+                            users = json.users || [];
+                        }
+                        renderOptions(users);
+                    } catch(e) { /* silently skip */ }
                 }, 220);
             });
 
