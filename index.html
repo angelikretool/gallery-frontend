@@ -160,20 +160,33 @@
             box-shadow: 0 8px 32px rgba(155,114,207,0.2);
         }
         .component-card.card-champion {
-            border-color: #FAC440;
-            box-shadow: 0 0 12px rgba(250,196,64,0.18);
+            border: 2px solid #FAC440;
+            box-shadow: 0 0 16px rgba(250,196,64,0.3);
         }
         .component-card.card-champion:hover {
             border-color: #FAC440;
-            box-shadow: 0 8px 32px rgba(250,196,64,0.35);
+            box-shadow: 0 8px 32px rgba(250,196,64,0.45);
         }
         .component-card.card-retool-team {
-            border-color: #9B72CF;
-            box-shadow: 0 0 12px rgba(155,114,207,0.18);
+            border: 2px solid #9B72CF;
+            box-shadow: 0 0 16px rgba(155,114,207,0.3);
         }
         .component-card.card-retool-team:hover {
             border-color: #9B72CF;
-            box-shadow: 0 8px 32px rgba(155,114,207,0.35);
+            box-shadow: 0 8px 32px rgba(155,114,207,0.45);
+        }
+        .tag.retool-team-tag {
+            background: rgba(155,114,207,0.15);
+            border: 1px solid rgba(155,114,207,0.4);
+            color: #9B72CF;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .tag.retool-team-tag img {
+            width: 9px;
+            height: 9px;
+            object-fit: contain;
         }
 
         .card-media {
@@ -2360,13 +2373,18 @@
                 else if (rank === 2) { rankClass = 'silver'; rankLabel = '🥈 #2'; }
                 else if (rank === 3) { rankClass = 'bronze'; rankLabel = '🥉 #3'; }
 
-                const tagsHtml = comp.tags.map(tag =>
-                    `<span class="tag" style="${tag.style || ''}">${tag.name}</span>`
-                ).join('');
-
                 const isChampion = champions.has(comp.author.toLowerCase());
                 const isRetoolTeam = retoolTeam.has(comp.author.toLowerCase());
                 const cardBorderClass = isChampion ? 'card-champion' : isRetoolTeam ? 'card-retool-team' : '';
+                const retoolTeamTag = isRetoolTeam
+                    ? `<span class="tag retool-team-tag"><img src="retool-icon.svg" alt="">Retool Team</span>`
+                    : '';
+                const tagsHtml = retoolTeamTag + comp.tags.map(tag =>
+                    `<span class="tag" style="${tag.style || ''}">${tag.name}</span>`
+                ).join('');
+                const authorBadge = isRetoolTeam
+                    ? ` <span class="retool-team-badge"><img src="retool-icon.svg" alt="">Retool Team</span>`
+                    : '';
 
                 const starIcon = isVotedFor ? '★' : '☆';
                 let starBtn;
@@ -2390,6 +2408,7 @@
                                 <div class="card-author">
                                     ${getAvatarHtml(comp, 'author-avatar', comp.authorStyle)}
                                     <a class="card-author-link" href="${DISCOURSE_URL}/u/${encodeURIComponent(comp.author.replace('@',''))}" onclick="event.stopPropagation();" target="_blank" rel="noopener">${comp.author}</a>
+                                    ${authorBadge}
                                 </div>
                             </div>
                             <a href="${comp.repoLink}" class="github-link" onclick="event.stopPropagation(); window.open(this.href, '_blank'); return false;" target="_blank">
