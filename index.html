@@ -1147,6 +1147,24 @@
             background: rgba(156,191,231,0.1);
         }
 
+        .modal-btn.danger {
+            background: transparent;
+            color: #F87171;
+            border: 1px solid rgba(248,113,113,0.3);
+            font-weight: 600;
+            font-family: inherit;
+            margin-right: auto;
+        }
+        .modal-btn.danger:hover {
+            background: rgba(248,113,113,0.1);
+            border-color: #F87171;
+        }
+        .modal-btn.danger.confirming {
+            border-color: #EF4444;
+            color: #EF4444;
+            background: rgba(239,68,68,0.12);
+        }
+
         @media (max-width: 768px) {
             .modal-content {
                 max-height: 95vh;
@@ -2109,6 +2127,7 @@
 
         const VALIDATE_WEBHOOK = PROXY + '/validate';
         const UPDATE_WEBHOOK   = PROXY + '/update';
+        const DELETE_WEBHOOK   = PROXY + '/delete';
         const GALLERY_WEBHOOK  = PROXY + '/gallery';
 
         let editMode  = false;
@@ -3365,6 +3384,8 @@
             history.replaceState(null, '', qs || location.pathname);
             const sfU = document.getElementById('sf-username');
             if (sfU?._acReset) sfU._acReset();
+            const delBtn = document.getElementById('deleteComponentBtn');
+            if (delBtn) { delBtn.style.display = 'none'; delBtn.classList.remove('confirming'); delBtn.textContent = ''; delBtn.disabled = false; }
         }
 
         function buildSubmitModal() {
@@ -3529,7 +3550,11 @@
 
                 <!-- Footer -->
                 <div class="submit-modal-footer" id="submitFooter">
-                    <div id="footerFormBtns" style="display:flex;gap:12px;width:100%;justify-content:flex-end;">
+                    <div id="footerFormBtns" style="display:flex;gap:12px;width:100%;justify-content:flex-end;align-items:center;">
+                        <button id="deleteComponentBtn" class="modal-btn danger" type="button" onclick="deleteComponent()" style="display:none;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                            Delete Component
+                        </button>
                         <button class="modal-btn secondary" type="button" onclick="closeSubmitModal()">Cancel</button>
                         <button class="modal-btn primary" type="button" onclick="handleSubmit()">Preview Submission &rarr;</button>
                     </div>
@@ -4250,6 +4275,7 @@
             // Update modal labels for edit mode
             document.getElementById('submitModalTitle').textContent = 'Edit Your Component';
             document.querySelector('#footerFormBtns .modal-btn.primary').textContent = 'Preview Changes \u2192';
+            document.getElementById('deleteComponentBtn').style.display = '';
 
             // Inject reviewer feedback banner at the top of the form if present
             if (editData.feedback) {
@@ -4268,6 +4294,44 @@
 
             document.getElementById('submitOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
+        }
+
+        async function deleteComponent() {
+            const btn = document.getElementById('deleteComponentBtn');
+            if (!btn.classList.contains('confirming')) {
+                btn.classList.add('confirming');
+                btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Confirm Delete`;
+                setTimeout(() => {
+                    if (btn.classList.contains('confirming')) {
+                        btn.classList.remove('confirming');
+                        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Delete Component`;
+                    }
+                }, 5000);
+                return;
+            }
+            btn.disabled = true;
+            btn.textContent = 'Deleting…';
+            try {
+                const res = await fetch(DELETE_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ edit_token: editToken })
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                // Remove from local array and re-render
+                if (editData) {
+                    const idx = components.findIndex(c => c.id === String(editData.id));
+                    if (idx !== -1) components.splice(idx, 1);
+                    try { localStorage.removeItem(GALLERY_CACHE_KEY); } catch(e) {}
+                }
+                closeSubmitModal();
+                renderGallery();
+            } catch(err) {
+                btn.disabled = false;
+                btn.classList.remove('confirming');
+                btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Delete Component`;
+                alert('Delete failed: ' + err.message);
+            }
         }
 
         async function confirmSubmit() {
