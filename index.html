@@ -1689,6 +1689,20 @@
         .username-selected-handle { font-size: 0.78em; color: #6B7280; margin-top: 1px; }
         .username-selected-change { font-size: 0.75em; color: #6B7280; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
         .username-selected-change svg { flex-shrink: 0; }
+        .username-selected-pill.champion {
+            background: rgba(250,196,64,0.08);
+            border-color: rgba(250,196,64,0.45);
+        }
+        .username-selected-pill.champion:hover {
+            background: rgba(250,196,64,0.13);
+            border-color: rgba(250,196,64,0.7);
+        }
+        .pill-champion-badge {
+            font-size: 0.75em;
+            font-weight: 600;
+            color: #FAC440;
+            margin-left: 5px;
+        }
 
         .field-error-msg {
             color: #EF4444;
@@ -2904,11 +2918,12 @@
                 const avatarHtml = avatarUrl
                     ? `<img src="${avatarUrl}" alt="">`
                     : `<div class="username-selected-pill-avatar-fallback" style="${_authorStyle(user.username)}">${initials}</div>`;
-                pill.className = 'username-selected-pill';
+                const isChamp = champions.has('@' + user.username.toLowerCase());
+                pill.className = 'username-selected-pill' + (isChamp ? ' champion' : '');
                 pill.innerHTML = `
                     ${avatarHtml}
                     <div class="username-selected-info">
-                        <div class="username-selected-name">${user.name ? esc(user.name) : '@' + esc(user.username)}</div>
+                        <div class="username-selected-name">${user.name ? esc(user.name) : '@' + esc(user.username)}${isChamp ? ' <span class="pill-champion-badge">★ Community Champion</span>' : ''}</div>
                         <div class="username-selected-handle">@${esc(user.username)}</div>
                     </div>
                     <div class="username-selected-change">
