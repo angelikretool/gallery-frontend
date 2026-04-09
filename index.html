@@ -1990,19 +1990,21 @@
             '@jamesg31',
         ]);
 
+        // ===== Proxy =====
+        const PROXY = 'https://retool-proxy.angelik.workers.dev';
+
         // ===== Request Board Webhooks =====
-        // Wire these up once you've created the workflows in Retool
-        const REQUESTS_WEBHOOK       = '__REQUESTS_WEBHOOK__';
-        const SUBMIT_REQUEST_WEBHOOK = '__SUBMIT_REQUEST_WEBHOOK__';
-        const CLAIM_REQUEST_WEBHOOK   = '__CLAIM_REQUEST_WEBHOOK__';
-        const RELEASE_CLAIM_WEBHOOK   = '__RELEASE_CLAIM_WEBHOOK__';
+        const REQUESTS_WEBHOOK       = PROXY + '/requests';
+        const SUBMIT_REQUEST_WEBHOOK = PROXY + '/submit-request';
+        const CLAIM_REQUEST_WEBHOOK   = PROXY + '/claim-request';
+        const RELEASE_CLAIM_WEBHOOK   = PROXY + '/release-claim';
         const REQUESTS_CACHE_KEY      = 'retool_requests_cache';
 
         // ===== Edit Mode =====
 
-        const VALIDATE_WEBHOOK = '__VALIDATE_WEBHOOK__';
-        const UPDATE_WEBHOOK   = '__UPDATE_WEBHOOK__';
-        const GALLERY_WEBHOOK  = '__GALLERY_WEBHOOK__';
+        const VALIDATE_WEBHOOK = PROXY + '/validate';
+        const UPDATE_WEBHOOK   = PROXY + '/update';
+        const GALLERY_WEBHOOK  = PROXY + '/gallery';
 
         let editMode  = false;
         let editToken = null;
@@ -2836,7 +2838,7 @@
         // ===== Community Username Autocomplete =====
 
         const DISCOURSE_URL   = 'https://community.retool.com';
-        const DISCOURSE_PROXY = '__DISCOURSE_PROXY__';
+        const DISCOURSE_PROXY = PROXY + '/discourse';
         let _acTimers = {};
 
         function initUsernameAutocomplete(inputId, opts = {}) {
@@ -4144,7 +4146,7 @@
         }
 
         async function confirmSubmit() {
-            const SUBMIT_WEBHOOK = '__SUBMIT_WEBHOOK__';
+            const SUBMIT_WEBHOOK = PROXY + '/submit';
             const endpoint = editMode ? UPDATE_WEBHOOK : SUBMIT_WEBHOOK;
 
             const submitBtn = document.querySelector('#footerPreviewBtns .modal-btn.primary');
