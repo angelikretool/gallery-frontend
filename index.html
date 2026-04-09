@@ -2375,7 +2375,7 @@
 
                 const isChampion = champions.has(comp.author.toLowerCase());
                 const isRetoolTeam = retoolTeam.has(comp.author.toLowerCase());
-                const cardBorderClass = isChampion ? 'card-champion' : isRetoolTeam ? 'card-retool-team' : '';
+                const cardBorderClass = isChampion ? 'card-champion' : '';
                 const retoolTeamTag = isRetoolTeam
                     ? `<span class="tag retool-team-tag"><img src="retool-icon.svg" alt="">Retool Team</span>`
                     : '';
