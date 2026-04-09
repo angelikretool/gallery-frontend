@@ -3133,9 +3133,17 @@
             // Tag filters
             document.querySelectorAll('.tag-button').forEach(btn => {
                 btn.addEventListener('click', function () {
+                    const label = this.textContent.trim();
+                    const isActive = this.classList.contains('active');
                     document.querySelectorAll('.tag-button').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFilter = this.textContent.trim();
+                    if (isActive) {
+                        // Second click — deactivate, reset to All Components
+                        document.querySelector('.tag-button:first-of-type')?.classList.add('active');
+                        currentFilter = 'All Components';
+                    } else {
+                        this.classList.add('active');
+                        currentFilter = label;
+                    }
                     renderGallery();
                 });
             });
