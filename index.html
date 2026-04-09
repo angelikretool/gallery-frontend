@@ -2382,9 +2382,6 @@
                 const tagsHtml = retoolTeamTag + comp.tags.map(tag =>
                     `<span class="tag" style="${tag.style || ''}">${tag.name}</span>`
                 ).join('');
-                const authorBadge = isRetoolTeam
-                    ? ` <span class="retool-team-badge"><img src="retool-icon.svg" alt="">Retool Team</span>`
-                    : '';
 
                 const starIcon = isVotedFor ? '★' : '☆';
                 let starBtn;
@@ -2408,7 +2405,6 @@
                                 <div class="card-author">
                                     ${getAvatarHtml(comp, 'author-avatar', comp.authorStyle)}
                                     <a class="card-author-link" href="${DISCOURSE_URL}/u/${encodeURIComponent(comp.author.replace('@',''))}" onclick="event.stopPropagation();" target="_blank" rel="noopener">${comp.author}</a>
-                                    ${authorBadge}
                                 </div>
                             </div>
                             <a href="${comp.repoLink}" class="github-link" onclick="event.stopPropagation(); window.open(this.href, '_blank'); return false;" target="_blank">
