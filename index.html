@@ -1988,6 +1988,13 @@
         const champions = new Set([
             '@abusedmedia',
             '@jamesg31',
+            '@miguelortiz',
+            '@shawn_optipath',
+            '@pyrrho',
+            '@bobthebear',
+            '@jg80',
+            '@sgodoshian',
+            '@joeykarczewski',
         ]);
 
         // ===== Proxy =====
@@ -2076,7 +2083,7 @@
             let list = [...components];
 
             if (currentFilter === '★ Community Champions') {
-                list = list.filter(c => champions.has(c.author));
+                list = list.filter(c => champions.has(c.author.toLowerCase()));
             } else if (currentFilter !== 'All Components') {
                 const allowed = filterTagMap[currentFilter] || [];
                 list = list.filter(c => c.tags.some(t => allowed.includes(t.name)));
@@ -2270,7 +2277,7 @@
                     `<span class="tag" style="${tag.style || ''}">${tag.name}</span>`
                 ).join('');
 
-                const isChampion = champions.has(comp.author);
+                const isChampion = champions.has(comp.author.toLowerCase());
                 const championBadge = isChampion
                     ? `<span class="champion-badge">&#9733; Community Champion</span>`
                     : '';
@@ -2354,7 +2361,7 @@
                 modalAvatarEl.textContent = comp.authorInitials;
                 modalAvatarEl.style.background = '';
             }
-            const modalChampionBadge = champions.has(comp.author)
+            const modalChampionBadge = champions.has(comp.author.toLowerCase())
                 ? ` <span class="champion-badge">&#9733; Community Champion</span>`
                 : '';
             const profileUrl = `${DISCOURSE_URL}/u/${encodeURIComponent(comp.author.replace('@',''))}`;
