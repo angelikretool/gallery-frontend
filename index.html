@@ -159,6 +159,22 @@
             border-color: #9B72CF;
             box-shadow: 0 8px 32px rgba(155,114,207,0.2);
         }
+        .component-card.card-champion {
+            border-color: rgba(250,196,64,0.5);
+            box-shadow: 0 0 0 0px rgba(250,196,64,0);
+        }
+        .component-card.card-champion:hover {
+            border-color: #FAC440;
+            box-shadow: 0 8px 32px rgba(250,196,64,0.25);
+        }
+        .component-card.card-retool-team {
+            border-color: rgba(155,114,207,0.5);
+            box-shadow: 0 0 0 0px rgba(155,114,207,0);
+        }
+        .component-card.card-retool-team:hover {
+            border-color: #9B72CF;
+            box-shadow: 0 8px 32px rgba(155,114,207,0.3);
+        }
 
         .card-media {
             width: 100%;
@@ -2350,12 +2366,7 @@
 
                 const isChampion = champions.has(comp.author.toLowerCase());
                 const isRetoolTeam = retoolTeam.has(comp.author.toLowerCase());
-                const retoolLogo = `<img src="retool-icon.svg" alt="">`;
-                const championBadge = isChampion
-                    ? `<span class="champion-badge">&#9733; Community Champion</span>`
-                    : isRetoolTeam
-                        ? `<span class="retool-team-badge">${retoolLogo} Retool Team</span>`
-                        : '';
+                const cardBorderClass = isChampion ? 'card-champion' : isRetoolTeam ? 'card-retool-team' : '';
 
                 const starIcon = isVotedFor ? '★' : '☆';
                 let starBtn;
@@ -2366,7 +2377,7 @@
                 }
 
                 return `
-                <div class="component-card" onclick="openModal('${comp.id}')" style="cursor: pointer;">
+                <div class="component-card ${cardBorderClass}" onclick="openModal('${comp.id}')" style="cursor: pointer;">
                     <div class="card-media">
                         <img src="${comp.image}" alt="${comp.title} preview">
                         <div class="rank-badge ${rankClass}">${rankLabel}</div>
@@ -2379,7 +2390,6 @@
                                 <div class="card-author">
                                     ${getAvatarHtml(comp, 'author-avatar', comp.authorStyle)}
                                     <a class="card-author-link" href="${DISCOURSE_URL}/u/${encodeURIComponent(comp.author.replace('@',''))}" onclick="event.stopPropagation();" target="_blank" rel="noopener">${comp.author}</a>
-                                    ${championBadge}
                                 </div>
                             </div>
                             <a href="${comp.repoLink}" class="github-link" onclick="event.stopPropagation(); window.open(this.href, '_blank'); return false;" target="_blank">
