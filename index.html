@@ -344,6 +344,55 @@
             border-color: #9B72CF;
         }
 
+        .tag-button.retool-team-filter {
+            border-color: rgba(255,255,255,0.2);
+            color: #D1D5DB;
+            gap: 5px;
+        }
+        .tag-button.retool-team-filter:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border-color: rgba(255,255,255,0.4);
+        }
+        .tag-button.retool-team-filter.active {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #444;
+        }
+        .retool-team-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 9px;
+            background: rgba(26,26,26,0.6);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            font-size: 0.72em;
+            font-weight: 800;
+            color: #E5E7EB;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+        .retool-team-badge img {
+            width: 11px;
+            height: 11px;
+            object-fit: contain;
+        }
+        .username-selected-pill.retool-team {
+            background: rgba(20,20,20,0.85);
+            border-color: rgba(255,255,255,0.18);
+        }
+        .username-selected-pill.retool-team:hover {
+            background: rgba(30,30,30,0.95);
+            border-color: rgba(255,255,255,0.32);
+        }
+        .pill-retool-team-badge {
+            font-size: 0.75em;
+            font-weight: 600;
+            color: #D1D5DB;
+            margin-left: 5px;
+        }
+
         /* ===== Voting Styles ===== */
 
         .rank-badge {
@@ -2011,6 +2060,12 @@
             '@joeykarczewski',
         ]);
 
+        const retoolTeam = new Set([
+            '@angeliklaboy',
+            '@sarahs',
+            '@keenankoppenhaver',
+        ]);
+
         // ===== Proxy =====
         const PROXY = 'https://retool-proxy.angelik.workers.dev';
 
@@ -2098,6 +2153,8 @@
 
             if (currentFilter === '★ Community Champions') {
                 list = list.filter(c => champions.has(c.author.toLowerCase()));
+            } else if (currentFilter === 'Retool Team') {
+                list = list.filter(c => retoolTeam.has(c.author.toLowerCase()));
             } else if (currentFilter !== 'All Components') {
                 const allowed = filterTagMap[currentFilter] || [];
                 list = list.filter(c => c.tags.some(t => allowed.includes(t.name)));
@@ -2292,9 +2349,13 @@
                 ).join('');
 
                 const isChampion = champions.has(comp.author.toLowerCase());
+                const isRetoolTeam = retoolTeam.has(comp.author.toLowerCase());
+                const retoolLogo = `<img src="https://www.vectorlogo.zone/logos/retool/retool-icon.svg" alt="">`;
                 const championBadge = isChampion
                     ? `<span class="champion-badge">&#9733; Community Champion</span>`
-                    : '';
+                    : isRetoolTeam
+                        ? `<span class="retool-team-badge">${retoolLogo} Retool Team</span>`
+                        : '';
 
                 const starIcon = isVotedFor ? '★' : '☆';
                 let starBtn;
@@ -2375,9 +2436,12 @@
                 modalAvatarEl.textContent = comp.authorInitials;
                 modalAvatarEl.style.background = '';
             }
+            const _retoolLogo = `<img src="https://www.vectorlogo.zone/logos/retool/retool-icon.svg" alt="" style="width:11px;height:11px;object-fit:contain;">`;
             const modalChampionBadge = champions.has(comp.author.toLowerCase())
                 ? ` <span class="champion-badge">&#9733; Community Champion</span>`
-                : '';
+                : retoolTeam.has(comp.author.toLowerCase())
+                    ? ` <span class="retool-team-badge">${_retoolLogo} Retool Team</span>`
+                    : '';
             const profileUrl = `${DISCOURSE_URL}/u/${encodeURIComponent(comp.author.replace('@',''))}`;
             document.getElementById('modalAuthorName').innerHTML = `<a href="${profileUrl}" target="_blank" rel="noopener" class="card-author-link" style="font-weight:inherit;">${comp.author}</a>` + modalChampionBadge;
             document.getElementById('modalPreview').src = comp.image;
@@ -2919,11 +2983,17 @@
                     ? `<img src="${avatarUrl}" alt="">`
                     : `<div class="username-selected-pill-avatar-fallback" style="${_authorStyle(user.username)}">${initials}</div>`;
                 const isChamp = champions.has('@' + user.username.toLowerCase());
-                pill.className = 'username-selected-pill' + (isChamp ? ' champion' : '');
+                const isTeam  = retoolTeam.has('@' + user.username.toLowerCase());
+                pill.className = 'username-selected-pill' + (isChamp ? ' champion' : isTeam ? ' retool-team' : '');
+                const pillBadge = isChamp
+                    ? ' <span class="pill-champion-badge">★ Community Champion</span>'
+                    : isTeam
+                        ? ' <span class="pill-retool-team-badge">⬛ Retool Team</span>'
+                        : '';
                 pill.innerHTML = `
                     ${avatarHtml}
                     <div class="username-selected-info">
-                        <div class="username-selected-name">${user.name ? esc(user.name) : '@' + esc(user.username)}${isChamp ? ' <span class="pill-champion-badge">★ Community Champion</span>' : ''}</div>
+                        <div class="username-selected-name">${user.name ? esc(user.name) : '@' + esc(user.username)}${pillBadge}</div>
                         <div class="username-selected-handle">@${esc(user.username)}</div>
                     </div>
                     <div class="username-selected-change">
@@ -4286,6 +4356,7 @@
             <div class="tag-filter">
                 <button class="tag-button active">All Components</button>
                 <button class="tag-button champion-filter">&#9733; Community Champions</button>
+                <button class="tag-button retool-team-filter"><img src="https://www.vectorlogo.zone/logos/retool/retool-icon.svg" style="width:13px;height:13px;object-fit:contain;vertical-align:middle;margin-right:3px;" alt="">Retool Team</button>
                 <button class="tag-button">AI & Agents</button>
                 <button class="tag-button">Charts & Maps</button>
                 <button class="tag-button">Data & Files</button>
