@@ -1992,17 +1992,17 @@
 
         // ===== Request Board Webhooks =====
         // Wire these up once you've created the workflows in Retool
-        const REQUESTS_WEBHOOK       = 'https://api.retool.com/v1/workflows/9956328f-eb4f-49cd-a142-b91b6d5cd6b8/startTrigger?workflowApiKey=retool_wk_db0990291a6f483bb155179c8d0e29b7';
-        const SUBMIT_REQUEST_WEBHOOK = 'https://api.retool.com/v1/workflows/e06bf321-5de9-4547-9ca1-d2975ab5390d/startTrigger?workflowApiKey=retool_wk_444308ea34ef4c9db1b535013daaa3c4';
-        const CLAIM_REQUEST_WEBHOOK   = 'https://api.retool.com/v1/workflows/fd753930-e0b5-4c70-817e-21973ca6deef/startTrigger?workflowApiKey=retool_wk_c80d7a1446f24222959c43b217f933c3';
-        const RELEASE_CLAIM_WEBHOOK   = 'https://api.retool.com/v1/workflows/33468da3-098e-45d8-b38c-fe8b553ae8c2/startTrigger?workflowApiKey=retool_wk_71d9f5d1f66d4739b902746f875cce00';
+        const REQUESTS_WEBHOOK       = '__REQUESTS_WEBHOOK__';
+        const SUBMIT_REQUEST_WEBHOOK = '__SUBMIT_REQUEST_WEBHOOK__';
+        const CLAIM_REQUEST_WEBHOOK   = '__CLAIM_REQUEST_WEBHOOK__';
+        const RELEASE_CLAIM_WEBHOOK   = '__RELEASE_CLAIM_WEBHOOK__';
         const REQUESTS_CACHE_KEY      = 'retool_requests_cache';
 
         // ===== Edit Mode =====
 
-        const VALIDATE_WEBHOOK ='https://api.retool.com/v1/workflows/109e8eb2-507b-4573-9ab3-fce34a58107f/startTrigger?workflowApiKey=retool_wk_490325bf5e0648f38ad4c807f1537351';
-        const UPDATE_WEBHOOK   = 'https://api.retool.com/v1/workflows/50a3d9a0-fa02-4f25-867d-8cea0ef69a4b/startTrigger?workflowApiKey=retool_wk_6877faad708f49e3b83b67f05768e8a9';
-        const GALLERY_WEBHOOK  = 'https://api.retool.com/v1/workflows/e677746f-400d-4358-bdeb-64d1a53771b8/startTrigger?workflowApiKey=retool_wk_d60e3f9bf3d34aac8d5b0df41ee97147';
+        const VALIDATE_WEBHOOK = '__VALIDATE_WEBHOOK__';
+        const UPDATE_WEBHOOK   = '__UPDATE_WEBHOOK__';
+        const GALLERY_WEBHOOK  = '__GALLERY_WEBHOOK__';
 
         let editMode  = false;
         let editToken = null;
@@ -2836,7 +2836,7 @@
         // ===== Community Username Autocomplete =====
 
         const DISCOURSE_URL   = 'https://community.retool.com';
-        const DISCOURSE_PROXY = 'https://api.retool.com/v1/workflows/e4cba2de-21c6-43e7-9738-995aa0876d9b/startTrigger?workflowApiKey=retool_wk_784ea38f87cb4bff8825aa89e53bb729';
+        const DISCOURSE_PROXY = '__DISCOURSE_PROXY__';
         let _acTimers = {};
 
         function initUsernameAutocomplete(inputId, opts = {}) {
@@ -4144,7 +4144,7 @@
         }
 
         async function confirmSubmit() {
-            const SUBMIT_WEBHOOK = 'https://api.retool.com/v1/workflows/887d5fd1-f8e1-4f92-800a-8ff7a28bc622/startTrigger?workflowApiKey=retool_wk_7c33407d2ef541cb904fb7f021ffffe2';
+            const SUBMIT_WEBHOOK = '__SUBMIT_WEBHOOK__';
             const endpoint = editMode ? UPDATE_WEBHOOK : SUBMIT_WEBHOOK;
 
             const submitBtn = document.querySelector('#footerPreviewBtns .modal-btn.primary');

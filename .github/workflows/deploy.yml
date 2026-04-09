@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject secrets into HTML
+        env:
+          REQUESTS_WEBHOOK: ${{ secrets.REQUESTS_WEBHOOK }}
+          SUBMIT_REQUEST_WEBHOOK: ${{ secrets.SUBMIT_REQUEST_WEBHOOK }}
+          CLAIM_REQUEST_WEBHOOK: ${{ secrets.CLAIM_REQUEST_WEBHOOK }}
+          RELEASE_CLAIM_WEBHOOK: ${{ secrets.RELEASE_CLAIM_WEBHOOK }}
+          VALIDATE_WEBHOOK: ${{ secrets.VALIDATE_WEBHOOK }}
+          UPDATE_WEBHOOK: ${{ secrets.UPDATE_WEBHOOK }}
+          GALLERY_WEBHOOK: ${{ secrets.GALLERY_WEBHOOK }}
+          DISCOURSE_PROXY: ${{ secrets.DISCOURSE_PROXY }}
+          SUBMIT_WEBHOOK: ${{ secrets.SUBMIT_WEBHOOK }}
+        run: |
+          sed -i \
+            -e "s|__REQUESTS_WEBHOOK__|${REQUESTS_WEBHOOK}|g" \
+            -e "s|__SUBMIT_REQUEST_WEBHOOK__|${SUBMIT_REQUEST_WEBHOOK}|g" \
+            -e "s|__CLAIM_REQUEST_WEBHOOK__|${CLAIM_REQUEST_WEBHOOK}|g" \
+            -e "s|__RELEASE_CLAIM_WEBHOOK__|${RELEASE_CLAIM_WEBHOOK}|g" \
+            -e "s|__VALIDATE_WEBHOOK__|${VALIDATE_WEBHOOK}|g" \
+            -e "s|__UPDATE_WEBHOOK__|${UPDATE_WEBHOOK}|g" \
+            -e "s|__GALLERY_WEBHOOK__|${GALLERY_WEBHOOK}|g" \
+            -e "s|__DISCOURSE_PROXY__|${DISCOURSE_PROXY}|g" \
+            -e "s|__SUBMIT_WEBHOOK__|${SUBMIT_WEBHOOK}|g" \
+            index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
