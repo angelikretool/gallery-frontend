@@ -3308,7 +3308,7 @@
             if (!results) return;
             if (selectedRequestId) return; // already selected
             const pool = requests.filter(r =>
-                (r.status === 'open' || r.status === 'claimed') &&
+                r.status === 'claimed' &&
                 (!q || r.title.toLowerCase().includes(q.toLowerCase()) || r.description.toLowerCase().includes(q.toLowerCase()))
             );
             if (!pool.length) { results.style.display = 'none'; return; }
