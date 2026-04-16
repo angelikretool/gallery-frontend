@@ -3411,7 +3411,7 @@
                             Before you submit
                         </div>
                         <div class="prereq-banner-body">
-                            Your component must be added to our <a href="https://github.com/laboyangelik/retool-custom-component-gallery" target="_blank">community GitHub repository</a> with an open pull request before submitting this form. This is a hard requirement — submissions without a valid PR link will not be accepted.<br><br>
+                            Your component must be added to our <a href="https://github.com/tryretool/custom-component-gallery" target="_blank">community GitHub repository</a> with an open pull request before submitting this form. This is a hard requirement — submissions without a valid PR link will not be accepted.<br><br>
                             Haven't opened your PR yet? Copy the component template, and come back once your pull request is open.
                         </div>
                     </div>`}
@@ -4317,7 +4317,11 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ edit_token: editToken })
                 });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
+                if (!res.ok && res.status !== 502) {
+                    const errBody = await res.text();
+                    console.error('Delete error body:', errBody);
+                    throw new Error('HTTP ' + res.status + ' — ' + errBody);
+                }
                 // Remove from local array and re-render
                 if (editData) {
                     const idx = components.findIndex(c => c.id === String(editData.id));
